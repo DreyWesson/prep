@@ -16,3 +16,31 @@ Please clone the repo locally and implement your solution. When you are satisfie
 1. Add all your changes to a single commit.
 2. Use `git format-patch -1 HEAD` to create a patch.
 3. Submit that patch to us via email.
+
+
+
+
+### How to execute the implementation
+
+```
+    npm start
+```
+
+
+
+### Electric reading dataset is slightly diff from the provided schema
+```
+  {
+    readingTime: 1690758900000,
+    serverTime: 1693487445608,
+    receivedStatus: 'W',
+    energyOut: 2605312600
+  },
+  {
+    readingTime: 1690758000000,
+    serverTime: 1693487445608,
+    receivedStatus: 'W',
+    energyOut: 2605262300
+  }
+  ...
+```
