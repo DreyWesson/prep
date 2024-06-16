@@ -6,26 +6,31 @@ import { connectDB } from "./config/db.js";
 import { swaggerSpec, swaggerUi } from "./docs/index.js";
 import homeRoutes from "./routes/home.routes.js";
 
-// Create Express App
-const app = express();
+export default function injectApp(dataBase) {
+    // Create Express App
+    const app = express();
 
-// Load environment variables
-dotenv.config();
+    // Load environment variables
+    dotenv.config();
+    
+    // Connect Database
+    const filePath = connectDB(dataBase);
+    // const filePathTests = connectDB("../db/testDB.json");
+    
+    // Middleware
+    app.use(express.json());
+    app.use(cors());
+    
+    // Routes
+    app.use("/", homeRoutes());
+    app.use("/api/v1", itemRoutes(filePath));
+    // app.use("/tests/", itemRoutes(filePathTests));
+    
+    // Documentation
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Connect Database
-const filePath = connectDB("../db/data.json");
-const filePathTests = connectDB("../db/testDB.json");
+    return app;
+}
 
-// Middleware
-app.use(express.json());
-app.use(cors());
 
-// Routes
-app.use("/", homeRoutes());
-app.use("/api/v1", itemRoutes(filePath));
-app.use("/tests/", itemRoutes(filePathTests));
-
-// Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-export default app;
+// export default app;

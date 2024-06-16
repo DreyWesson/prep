@@ -2,5 +2,9 @@
   {
     "id": 3,
     "name": "food item"
+  },
+  {
+    "id": 1,
+    "name": "item 1"
   }
 ]
