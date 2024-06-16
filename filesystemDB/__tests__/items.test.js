@@ -1,0 +1,50 @@
+import request from "supertest";
+import app from "../app.js";
+import fs from "fs/promises";
+import { connectDB } from "../config/db.js";
+
+const filePath = connectDB("../db/testDB.json");
+
+beforeEach(async () => {
+  await fs.writeFile(filePath, JSON.stringify([{ id: 1, name: 'Item 1' }], null, 2));
+});
+
+describe('Items API', () => {
+    test('GET /tests/items - should return all items', async () => {
+        const response = await request(app).get('/tests/items');
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]).toHaveProperty('id', 1);
+    });
+
+
+  it('POST /tests/items - should create a new item', async () => {
+    const newItem = { id: 2, name: 'Item 2' };
+    const res = await request(app).post('/tests/items').send(newItem);
+    const items = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty('id', 2);
+    expect(items).toHaveLength(2);
+    expect(items[1]).toHaveProperty('name', 'Item 2');
+  });
+
+  it('PUT /tests/items/:id - should update an existing item', async () => {
+    const updatedItem = { id: 1, name: 'Updated Item 1' };
+    const res = await request(app).put('/tests/items/1').send(updatedItem);
+    const items = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('name', 'Updated Item 1');
+    expect(items[0]).toHaveProperty('name', 'Updated Item 1');
+  });
+
+  it('DELETE /tests/items/:id - should delete an existing item', async () => {
+    const res = await request(app).delete('/tests/items/1');
+    const items = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('message', 'Item deleted');
+    expect(items).toHaveLength(0);
+  });
+});
