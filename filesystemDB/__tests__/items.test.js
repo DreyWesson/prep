@@ -1,6 +1,6 @@
 import request from "supertest";
 import fs from "fs/promises";
-import { connectDB, getDatabase } from "../config/db.js";
+import { connectDB, getDatabase } from "../config/db.config.js";
 import injectApp from "../app.js";
 import * as database from "../controllers/index.controllers.js";
 
