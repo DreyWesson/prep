@@ -11,6 +11,7 @@ In this article, Im going to cover a robust backend development use some best pr
 - [ ] Database (NoSQL)
 - [ ] Database (SQL)
 - [ ] Database (GraphQL)
+- [ ] Caching and Perf
 - [ ] Containerization and Microservices
 - [ ] CI/CD
 - [ ] Deployment
