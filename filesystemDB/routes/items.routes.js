@@ -1,11 +1,5 @@
 import express from "express";
 import { connectDB, getDatabase } from "../config/db.js";
-// import {
-//   createItem,
-//   getItems,
-//   updateItem,
-//   deleteItem,
-// } from "../controllers/item.controllers.js";
 
 export default function (database) {
   const router = express.Router();
