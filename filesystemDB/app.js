@@ -6,16 +6,12 @@ import { connectDB } from "./config/db.js";
 import { swaggerSpec, swaggerUi } from "./docs/index.js";
 import homeRoutes from "./routes/home.routes.js";
 
-export default function injectApp(dataBase) {
+export default function injectApp(database) {
     // Create Express App
     const app = express();
 
     // Load environment variables
     dotenv.config();
-    
-    // Connect Database
-    const filePath = connectDB(dataBase);
-    // const filePathTests = connectDB("../db/testDB.json");
     
     // Middleware
     app.use(express.json());
@@ -23,8 +19,7 @@ export default function injectApp(dataBase) {
     
     // Routes
     app.use("/", homeRoutes());
-    app.use("/api/v1", itemRoutes(filePath));
-    // app.use("/tests/", itemRoutes(filePathTests));
+    app.use("/api/v1", itemRoutes(database));
     
     // Documentation
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
