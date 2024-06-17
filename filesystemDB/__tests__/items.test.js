@@ -2,9 +2,8 @@ import request from "supertest";
 import fs from "fs/promises";
 import { connectDB, getDatabase } from "../config/db.js";
 import injectApp from "../app.js";
-import * as database from "../controllers/item.controllers.js";
+import * as database from "../controllers/index.controllers.js";
 
-// const database = ;
 const app = injectApp(database);
 const filePath = connectDB(getDatabase());
 
