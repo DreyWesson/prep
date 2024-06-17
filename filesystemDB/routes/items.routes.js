@@ -1,9 +1,9 @@
 import express from "express";
-import { connectDB, getDatabase } from "../config/db.config.js";
+import { connectDB, selectDatabase } from "../config/fs.config.js";
 
 export default function ({ itemController }) {
   const router = express.Router();
-  const filePath = connectDB(getDatabase());
+  const filePath = connectDB(selectDatabase());
   const { createItem, getItems, updateItem, deleteItem } = itemController;
 
   router.post("/items", (req, res) => createItem(req, res, filePath));

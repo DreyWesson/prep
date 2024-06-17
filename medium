@@ -5,12 +5,12 @@ In this article, Im going to cover a robust backend development use some best pr
 - [x] Dependency injection
 - [x] Documentation (using Swagger)
 - [x] Versioning
-- [x] custom middleware e.g request logs and error handler
+- [x] server debugging & custom middleware e.g request logs and error handler
 - [x] Database (filesystem)
+- [ ] SSL, Authorization & Authentication, Rate Limiting, Input Validation and permission
 - [ ] Database (NoSQL)
 - [ ] Database (SQL)
 - [ ] Database (GraphQL)
 - [ ] Containerization and Microservices
 - [ ] CI/CD
-- [ ] Authorization and Authentication
 - [ ] Deployment

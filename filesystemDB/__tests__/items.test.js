@@ -1,11 +1,11 @@
 import request from "supertest";
 import fs from "fs/promises";
-import { connectDB, getDatabase } from "../config/db.config.js";
+import { connectDB, selectDatabase } from "../config/db.config.js";
 import injectApp from "../app.js";
 import * as database from "../controllers/index.controllers.js";
 
 const app = injectApp(database);
-const filePath = connectDB(getDatabase());
+const filePath = connectDB(selectDatabase());
 
 beforeEach(async () => {
   await fs.writeFile(filePath, JSON.stringify([{ id: 1, name: 'Item 1' }], null, 2));

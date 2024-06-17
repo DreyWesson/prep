@@ -1,0 +1,4 @@
+Setting up node typescript
+- [ ] npm init -y
+- [ ] npm i -D typescript
+- [ ] npm i -D ts-node

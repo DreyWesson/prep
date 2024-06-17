@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import itemRoutes from "./routes/items.routes.js";
 import { swaggerSpec, swaggerUi } from "./docs/index.js";
 import homeRoutes from "./routes/home.routes.js";
@@ -10,11 +9,11 @@ import { errorLogger } from "./middleware/error.middleware.js";
 import { errorRoute } from "./routes/error.routes.js";
 
 export default function injectApp(database) {
+  if (!database) {
+    throw new Error("Connect database...");
+  }
   // Create Express App
   const app = express();
-
-  // Load environment variables
-  dotenv.config();
 
   // Middleware
   app.use(logger);
@@ -32,5 +31,3 @@ export default function injectApp(database) {
 
   return app;
 }
-
-// export default app;
