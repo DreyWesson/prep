@@ -1,13 +1,12 @@
 In this article, Im going to cover a robust backend development use some best practices. The topics we are gonna cover will include
-- CRUD and HTTP protocol
-- Testing (with Jest because its popular)
-- Database (we will do CRUD operation with filesytem so as not to introduce another learning curve)
-- Containerization
-- Microservices
-- Deployment
-- Dependency injection
-- CI/CD
-- Documentation (using Swagger)
-- Authorization and Authentication
-- Versioning and custom middleware
-- Folder structuring
+- [x] Folder structuring
+- [x] CRUD and HTTP protocol
+- [x] Testing (Jest)
+- [x] Dependency injection
+- [x] Documentation (using Swagger)
+- [ ] Database (filesystem)
+- [ ] Containerization and Microservices
+- [ ] CI/CD
+- [ ] Authorization and Authentication
+- [ ] Versioning and custom middleware
+- [ ] Deployment

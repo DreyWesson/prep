@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import itemRoutes from "./routes/items.routes.js";
 import { swaggerSpec, swaggerUi } from "./docs/index.js";
 import homeRoutes from "./routes/home.routes.js";
+import { corsOptions } from "./config/cors.config.js";
 
 export default function injectApp(database) {
     // Create Express App
@@ -14,7 +15,7 @@ export default function injectApp(database) {
     
     // Middleware
     app.use(express.json());
-    app.use(cors());
+    app.use(cors(corsOptions));
     
     // Routes
     app.use("/", homeRoutes(database));

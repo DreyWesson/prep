@@ -1,6 +1,5 @@
 import express from "express";
-import { connectDB, getDatabase } from "../config/db.js";
-import { swaggerSpec, swaggerUi } from "../docs/index.js";
+import { connectDB, getDatabase } from "../config/db.config.js";
 
 export default function ({ itemController }) {
   const router = express.Router();

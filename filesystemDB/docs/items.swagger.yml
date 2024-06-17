@@ -5,7 +5,8 @@ info:
   description: API documentation for FileSystem DB operations
   contact:
     name: API Support
-    email: support@example.com
+    url: 'dreywesson.netlify.com'
+    email: dreywesson@gmail.com
 servers:
   - url: http://localhost:80/api/v1
     description: Local server
@@ -13,6 +14,8 @@ servers:
 tags:
   - name: Items
     description: API to manage your items.
+  - name : Users
+    description: API to manage your users.
 
 paths:
   /items:
