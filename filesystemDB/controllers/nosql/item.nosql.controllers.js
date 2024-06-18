@@ -3,7 +3,6 @@ import Item from "../../models/nosql/items.nosql.model.js";
 export async function getItems(req, res) {
   try {
     const items = await Item.find();
-
     res.status(200).json({
       message: "Items fetched successfully",
       data: items,
@@ -28,21 +27,17 @@ export async function createItem(req, res) {
 
 export async function updateItem(req, res) {
   try {
-    let updatedItem = await Item.findById(req.params.id);
-
-    if (!updatedItem)
-      return res.status(404).json({ message: "Item not found" });
-
-    updatedItem = await Item.findOneAndUpdate(
-      { _id: req.params.id },
+    let updatedItem = await Item.findOneAndUpdate(
+      { id: req.params.id },
       req.body,
       {
         new: true,
         runValidators: true,
       }
     );
-
-    return res.status(200).json({ data: updatedItem, message: "Item updated" });
+    return !updatedItem
+      ? res.status(404).json({ message: "Item not found" })
+      : res.status(200).json({ data: updatedItem, message: "Item updated" });
   } catch (error) {
     console.error("Error updating item:", error);
     return res.status(500).json({ message: "Error updating item", error });
@@ -51,8 +46,7 @@ export async function updateItem(req, res) {
 
 export async function deleteItem(req, res) {
   try {
-    let item = await Item.findById(req.params.id);
-    console.log("item", item);
+    let item = await Item.findOne({id: req.params.id});
     item = await item.deleteOne();
     res.status(200).json({ message: "Item deleted" });
   } catch (error) {

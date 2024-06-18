@@ -2,23 +2,20 @@ import request from "supertest";
 import fs from "fs/promises";
 import { connectFS, selectDatabase } from "../config/fs.config.js";
 import injectApp from "../app.js";
-import * as database from "../controllers/fs/index.fs.controllers.js";
-import exp from "constants";
+import * as fsDatabase from "../controllers/fs/index.fs.controllers.js";
+import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js";
+import { connectNOSQL } from "../config/nosql.config.js";
 
-const app = injectApp(database);
-const filePath = connectFS(selectDatabase());
 
-beforeEach(async () => {
-  await fs.writeFile(
-    filePath,
-    JSON.stringify([{ id: 1, name: "Item 1" }], null, 2)
-  );
-});
+const app = injectApp(nosqlDatabase);
+console.log('Connecting to MongoDB');
+connectNOSQL();
+const testID = 42;
+
 
 describe("Items API", () => {
   test("GET /api/v1/items - should return all items", async () => {
     const { body, status } = await request(app).get("/api/v1/items");
-
     expect(status).toBe(200);
     expect(body).toHaveProperty("message", "Items fetched successfully");
     expect(body).toHaveProperty("data");
@@ -26,7 +23,7 @@ describe("Items API", () => {
 
   describe("POST /api/v1/items", () => {
     it("[SUCCESS] - should create a new item", async () => {
-      const newItem = { id: 2, name: "Item 2" };
+      const newItem = { id: testID, name: "Item 42" };
       const { body, status } = await request(app)
         .post("/api/v1/items")
         .send(newItem);
@@ -39,11 +36,11 @@ describe("Items API", () => {
     it("should return validation errors for invalid items", async () => {
       const testCases = [
         {
-          newItem: { id: 1, name: "Item 1", extra: "Invalid" },
+          newItem: { id: testID, name: "Item 1", extra: "Invalid" },
           expectedError: "Invalid fields: extra",
         },
         {
-          newItem: { id: 1 },
+          newItem: { id: testID },
           expectedError: "Name is required",
         },
         {
@@ -63,9 +60,9 @@ describe("Items API", () => {
 
   describe("PUT /api/v1/items/:id", () => {
     it("should update an existing item", async () => {
-      const updatedItem = { id: 1, name: "Updated Item 1" };
+      const updatedItem = { id: testID, name: "Updated Item 1" };
       const { body, status } = await request(app)
-        .put("/api/v1/items/1")
+        .put(`/api/v1/items/${testID}`)
         .send(updatedItem);
 
       expect(status).toEqual(200);
@@ -76,11 +73,11 @@ describe("Items API", () => {
     it("should not update an existing item", async () => {
       const testCases = [
         {
-          newItem: { id: 1, name: "Item 1", extra: "Invalid" },
+          newItem: { id: testID, name: "Item 1", extra: "Invalid" },
           expectedError: "Invalid fields: extra",
         },
         {
-          newItem: { id: 1 },
+          newItem: { id: testID },
           expectedError: "Name is required",
         },
         {
@@ -100,7 +97,7 @@ describe("Items API", () => {
 
   describe("DELETE /api/v1/items/:id", () => {
     it("should delete an existing item", async () => {
-      const { body, status } = await request(app).delete("/api/v1/items/1");
+      const { body, status } = await request(app).delete(`/api/v1/items/${testID}`);
 
       expect(status).toEqual(200);
       expect(body).toHaveProperty("message", "Item deleted");

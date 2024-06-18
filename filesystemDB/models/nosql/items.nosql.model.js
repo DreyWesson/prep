@@ -2,7 +2,7 @@ import mongoose, {Schema} from 'mongoose';
 
 const ItemSchema = new Schema({
     id: {
-        type: String,
+        type: Number,
         required: true
     },
     name: {
