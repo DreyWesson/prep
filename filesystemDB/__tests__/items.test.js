@@ -2,7 +2,7 @@ import request from "supertest";
 import fs from "fs/promises";
 import { connectFS, selectDatabase } from "../config/fs.config.js";
 import injectApp from "../app.js";
-import * as database from "../controllers/index.controllers.js";
+import * as database from "../controllers/fs/index.fs.controllers.js";
 
 const app = injectApp(database);
 const filePath = connectFS(selectDatabase());

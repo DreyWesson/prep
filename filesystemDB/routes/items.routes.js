@@ -3,13 +3,13 @@ import { connectFS, selectDatabase } from "../config/fs.config.js";
 
 export default function ({ itemController }) {
   const router = express.Router();
-  const filePath = connectFS(selectDatabase());
+  // const filePath = connectFS(selectDatabase());
   const { createItem, getItems, updateItem, deleteItem } = itemController;
 
-  router.post("/items", (req, res) => createItem(req, res, filePath));
-  router.get("/items", (req, res) => getItems(req, res, filePath));
-  router.put("/items/:id", (req, res) => updateItem(req, res, filePath));
-  router.delete("/items/:id", (req, res) => deleteItem(req, res, filePath));
+  router.post("/items", createItem);
+  router.get("/items", getItems);
+  router.put("/items/:id", updateItem);
+  router.delete("/items/:id", deleteItem);
 
   return router;
 }
