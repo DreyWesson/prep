@@ -48,7 +48,7 @@ exports.updateBook = AsyncManager(async (req, res, next) => {
         return next(new LibraryError(`That book is not available`, 404));
     }
 
-    book = await Book.findOneAndUpdate(req.params.id, req.body, {
+    book = await Book.findOneAndUpdate({_id: req.params.id}, req.body, {
         new: true,
         runValidators: true,
     });
@@ -65,6 +65,6 @@ exports.deleteBook = AsyncManager(async (req, res, next) => {
         return next(new LibraryError(`That book is not available`, 404));
     }
 
-    await book.remove();
+    await book.deleteOne();
     return res.status(200).json({ message: "The book has been deleted" });
 });

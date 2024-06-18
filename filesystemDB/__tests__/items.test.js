@@ -23,7 +23,9 @@ describe('Items API', () => {
   it('POST /api/v1/items - should create a new item', async () => {
     const newItem = { id: 2, name: 'Item 2' };
     const res = await request(app).post('/api/v1/items').send(newItem);
+    // const items = await database.itemController.getItems();
     const items = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+    console.log('*****items', items);
 
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('id', 2);

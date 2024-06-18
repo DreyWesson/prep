@@ -1,5 +1,4 @@
 import request from "supertest";
-
 import injectApp from "../app.js";
 import { jest } from "@jest/globals";
 

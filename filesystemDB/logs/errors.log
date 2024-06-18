@@ -1,5 +1,0 @@
-2024-06-18 10:41:09	0bbc8511-8478-47df-96a5-3658f6c60deb	TypeError: getItems is not a function
-2024-06-18 10:41:15	b929a6ea-accc-4deb-b9ea-bd43b0b9b560	TypeError: getItems is not a function
-2024-06-18 10:41:26	9d567ce3-c6d2-4a2d-98b4-4aae53afcd53	TypeError: getItems is not a function
-2024-06-18 10:45:55	64650f29-54c8-4927-8b34-9cebf306d76b	ReferenceError: getItems is not defined
-2024-06-18 10:47:02	6ed1d4c9-80a3-4fc6-8bd8-be0972c57502	ReferenceError: getItems is not defined
