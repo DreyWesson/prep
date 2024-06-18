@@ -5,6 +5,7 @@ import injectApp from "../app.js";
 import * as fsDatabase from "../controllers/fs/index.fs.controllers.js";
 import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js";
 import { connectNOSQL } from "../config/nosql.config.js";
+import mongoose from "mongoose";
 
 
 const app = injectApp(nosqlDatabase);
@@ -12,6 +13,9 @@ console.log('Connecting to MongoDB');
 connectNOSQL();
 const testID = 42;
 
+afterAll(async () => {
+  await mongoose.connection.close();
+});
 
 describe("Items API", () => {
   test("GET /api/v1/items - should return all items", async () => {
