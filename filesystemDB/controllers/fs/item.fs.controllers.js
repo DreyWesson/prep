@@ -21,7 +21,7 @@ export async function createItem(req, res) {
   try {
     const items = await readJsonFile(fsDatabase);
     const newItem = req.body;
-    console.log(items);
+
     items.push(newItem);
     await writeJsonFile(items, fsDatabase);
     res.status(201).json({ data: newItem, message: "Item created" });

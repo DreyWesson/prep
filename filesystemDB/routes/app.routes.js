@@ -1,5 +1,5 @@
 import express from "express";
-import { validateItem } from "../middleware/validator.middleware.js";
+import { validateItem, validateRegistration } from "../middleware/validator.middleware.js";
 import { swaggerSpec, swaggerUi } from "../docs/index.js";
 import { getUsers, registerUser } from "../controllers/fs/users.fs.controllers.js";
 
@@ -15,7 +15,7 @@ export default function ({ itemController, homeController }) {
   router.route("/items/:id").put(validateItem, updateItem).delete(deleteItem);
 
   router.route("/users").get(getUsers);
-  router.route("/users/register").post(registerUser);
+  router.route("/users/register").post(validateRegistration, registerUser);
 
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

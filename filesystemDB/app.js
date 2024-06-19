@@ -18,10 +18,17 @@ export default function injectApp(database) {
   app.use(logger);
   app.use(express.json());
   app.use(cors(corsOptions));
-
   // Routes
   app.use("/api/v1", appRoutes(database));
+    app.get("/error", (req, res, next) => {
+      try {
+        throw new Error("Deliberate error: testing error middleware");
+      } catch (error) {
+        next(error);
+      }
+    });
   app.use("*", errorRoute);
+
 
   // Error Middleware
   app.use(errorLogger);

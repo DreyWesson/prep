@@ -7,9 +7,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const logEvents = async (msg, logName) => {
+export const logEvents = async (msg, logName, uuid) => {
     const dateTime = `${format(new Date(), "yyyy-MM-dd\tHH:mm:ss")}`;
-    const logEntry = `${dateTime}\t${randomUUID()}\t${msg}\n`;
+    const logEntry = `${dateTime}\t${uuid}\t${msg}\n`;
 
     try {
         const logsDir = path.join(__dirname, "..", "logs");
@@ -28,7 +28,8 @@ export const logEvents = async (msg, logName) => {
 };
 
 export const logger = (req, res, next) => {
-    logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, "requests")
+    req.randomUUID = randomUUID();
+    logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, "requests", req.randomUUID)
         .catch(error => console.error('Error in logger middleware:', error));
     next();
 };

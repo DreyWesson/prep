@@ -8,9 +8,9 @@ import mongoose from "mongoose";
 const database = false ? nosqlDatabase : fsDatabase;
 
 connectNOSQL();
-const testID = 42;
 
 const app = injectApp(database);
+const newUser = { username: "test", password: "test" };
 
 afterAll(async () => {
   await mongoose.connection.close();
@@ -35,8 +35,8 @@ describe("Users API", () => {
       if (body.data.length > 0) {
         expect(body.data[0]).toEqual(
           expect.objectContaining({
-            id: expect.any(Number),
             username: newUser.username,
+            password: newUser.password,
           })
         );
       }
@@ -45,7 +45,6 @@ describe("Users API", () => {
 
   describe("POST /api/v1/users/register", () => {
     it("[ SUCCESS ] - should register a new user", async () => {
-      const newUser = { username: "test", password: "test" };
       const { body, status } = await request(app)
         .post("/api/v1/users/register")
         .send(newUser);
@@ -60,37 +59,46 @@ describe("Users API", () => {
           data: expect.objectContaining({
             username: newUser.username,
             password: newUser.password,
-        }),
+          }),
         })
       );
-
     });
+    it("should return validation errors if username or password are not strings", async () => {
+      const testCases = [
+        {
+          newUser: {
+            username: "user1",
+            password: "password1",
+            extraField: "Extra",
+          },
+          expectedError: "Invalid fields: extraField",
+        },
+        {
+          newUser: { password: "password2" },
+          expectedError: "Username is required",
+        },
+        {
+          newUser: { username: "user3" },
+          expectedError: "Password is required",
+        },
+        {
+          newUser: { username: 123, password: "password1" },
+          expectedError: "Username must be a string",
+        },
+        {
+          newUser: { username: "user2", password: true },
+          expectedError: "Password must be a string",
+        }
+      ];
 
-    // it("[ FAILURE ] - should return validation errors for invalid users", async () => {
-    //   const testCases = [
-    //     {
-    //       newUser: { id: testID, name: "User 1", extra: "Invalid" },
-    //       expectedError: "Invalid fields: extra",
-    //     },
-    //     {
-    //       newUser: { id: testID },
-    //       expectedError: "Name is required",
-    //     },
-    //     {
-    //       newUser: { name: "User 1" },
-    //       expectedError: "ID is required",
-    //     },
-    //   ];
+      for (const { newUser, expectedError } of testCases) {
+        const res = await request(app)
+          .post("/api/v1/users/register")
+          .send(newUser);
 
-    //   for (const { newUser, expectedError } of testCases) {
-    //     const res = await request(app)
-    //       .post("/api/v1/users/register")
-    //       .send(newUser);
-
-    //     expect(res.status).toEqual(500);
-    //     expect(res.body).toHaveProperty("message", "Error registering user");
-    //     expect(res.body).toHaveProperty("error");
-    //   }
-    // });
+        expect(res.status).toBe(400);
+        expect(res.body.errors.map((err) => err.msg)).toContain(expectedError);
+      }
+    });
   });
 });
