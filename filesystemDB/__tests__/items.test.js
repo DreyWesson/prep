@@ -5,7 +5,7 @@ import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js"
 import { connectNOSQL } from "../config/nosql.config.js";
 import mongoose from "mongoose";
 
-const database = (true) ? nosqlDatabase : fsDatabase;
+const database = (false) ? nosqlDatabase : fsDatabase;
 
 connectNOSQL();
 const testID = 42;

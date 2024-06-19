@@ -1,5 +1,5 @@
 import { connectFS, selectDatabase } from "../../config/fs.config.js";
-import { readJsonFile, writeJsonFile } from "../../models/fs/item.fs.models.js";
+import { readJsonFile, writeJsonFile } from "../../models/fs/fs.models.js";
 
 const fsDatabase = connectFS(selectDatabase());
 
