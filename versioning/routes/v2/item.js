@@ -1,5 +1,5 @@
 import express from 'express';
-import fs from 'fs';
+import {promises as fs} from 'fs';
 
 const router = express.Router();
 const filePath = './data-v2.json'; // Assuming a different data file for v2
@@ -13,7 +13,5 @@ router.get('/', (req, res) => {
     res.json(items);
   });
 });
-
-// Define other routes specific to v2
 
 export default router;

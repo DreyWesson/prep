@@ -8,7 +8,7 @@ info:
     url: 'dreywesson.netlify.com'
     email: dreywesson@gmail.com
 servers:
-  - url: http://localhost:80/api/v1
+  - url: http://localhost/api/v1
     description: Local server
 
 tags:

@@ -1,32 +1,35 @@
 import request from "supertest";
-import fs from "fs/promises";
-import { connectFS, selectDatabase } from "../config/fs.config.js";
 import injectApp from "../app.js";
 import * as fsDatabase from "../controllers/fs/index.fs.controllers.js";
 import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js";
 import { connectNOSQL } from "../config/nosql.config.js";
 import mongoose from "mongoose";
 
+const database = (true) ? nosqlDatabase : fsDatabase;
 
-const app = injectApp(nosqlDatabase);
-console.log('Connecting to MongoDB');
 connectNOSQL();
 const testID = 42;
+
+const app = injectApp(database);
 
 afterAll(async () => {
   await mongoose.connection.close();
 });
 
 describe("Items API", () => {
-  test("GET /api/v1/items - should return all items", async () => {
-    const { body, status } = await request(app).get("/api/v1/items");
-    expect(status).toBe(200);
-    expect(body).toHaveProperty("message", "Items fetched successfully");
-    expect(body).toHaveProperty("data");
+
+  describe("GET /api/v1/items", () => {
+    it("GET /api/v1/items - should return all items", async () => {
+      const { body, status } = await request(app).get("/api/v1/items");
+
+      expect(status).toBe(200);
+      expect(body).toHaveProperty("message", "Items fetched successfully");
+      expect(body).toHaveProperty("data");
+    });
   });
 
   describe("POST /api/v1/items", () => {
-    it("[SUCCESS] - should create a new item", async () => {
+    it("[ SUCCESS ] - should create a new item", async () => {
       const newItem = { id: testID, name: "Item 42" };
       const { body, status } = await request(app)
         .post("/api/v1/items")
@@ -37,7 +40,7 @@ describe("Items API", () => {
       expect(body).toHaveProperty("data");
     });
 
-    it("should return validation errors for invalid items", async () => {
+    it("[ FAILURE ] - should return validation errors for invalid items", async () => {
       const testCases = [
         {
           newItem: { id: testID, name: "Item 1", extra: "Invalid" },
@@ -55,15 +58,16 @@ describe("Items API", () => {
 
       for (const { newItem, expectedError } of testCases) {
         const res = await request(app).post("/api/v1/items").send(newItem);
-        expect(res.status).toBe(400);
         const errorMsgs = res.body.errors.map((err) => err.msg);
+
+        expect(res.status).toBe(400);
         expect(errorMsgs).toContain(expectedError);
       }
     });
   });
 
   describe("PUT /api/v1/items/:id", () => {
-    it("should update an existing item", async () => {
+    it("[ SUCCESS ] - should update an existing item", async () => {
       const updatedItem = { id: testID, name: "Updated Item 1" };
       const { body, status } = await request(app)
         .put(`/api/v1/items/${testID}`)
@@ -74,7 +78,7 @@ describe("Items API", () => {
       expect(body).toHaveProperty("data");
     });
 
-    it("should not update an existing item", async () => {
+    it("[ FAILURE ] - should not update an existing item", async () => {
       const testCases = [
         {
           newItem: { id: testID, name: "Item 1", extra: "Invalid" },
@@ -92,8 +96,9 @@ describe("Items API", () => {
 
       for (const { newItem, expectedError } of testCases) {
         const res = await request(app).put("/api/v1/items/:id").send(newItem);
-        expect(res.status).toBe(400);
         const errorMsgs = res.body.errors.map((err) => err.msg);
+
+        expect(res.status).toBe(400);
         expect(errorMsgs).toContain(expectedError);
       }
     });
@@ -101,7 +106,9 @@ describe("Items API", () => {
 
   describe("DELETE /api/v1/items/:id", () => {
     it("should delete an existing item", async () => {
-      const { body, status } = await request(app).delete(`/api/v1/items/${testID}`);
+      const { body, status } = await request(app).delete(
+        `/api/v1/items/${testID}`
+      );
 
       expect(status).toEqual(200);
       expect(body).toHaveProperty("message", "Item deleted");
