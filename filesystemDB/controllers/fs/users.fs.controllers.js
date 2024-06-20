@@ -1,19 +1,10 @@
-import { connectFS } from "../../config/fs.config.js";
+import { connectFS, injectUserWithToken } from "../../config/fs.config.js";
 import { readJsonFile, writeJsonFile } from "../../models/fs/fs.models.js";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
-import jwt from "jsonwebtoken";
-
-dotenv.config();
+import { cookieOptions } from "../../config/token.config.js";
 
 const usersDatabase = connectFS(process.env.USERS_DB_PATH);
-
-const setToken = (user, token, expiresIn) => {
-  return jwt.sign({ username: user.username, id: user.id }, token, {
-    expiresIn,
-  });
-};
 
 export const getUsers = async (req, res) => {
   const users = await readJsonFile(usersDatabase);
@@ -53,32 +44,28 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const users = await readJsonFile(usersDatabase);
+    const allUsers = await readJsonFile(usersDatabase);
     const { username, password } = req.body;
-    const user = users.find((user) => user.username === username);
+    const targetUser = allUsers.find((user) => user.username === username);
 
-    if (!user) {
+    if (!targetUser) {
       return res.status(404).json({ message: "Invalid credentials" });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, targetUser.password);
 
     if (!isValidPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
     // Create a JWT token
-    const accessToken = setToken(user, process.env.ACCESS_TOKEN, "60s"); // {balanced: 30min - 1h, high security: 5- 15min}
-    const refreshToken = setToken(user, process.env.REFRESH_TOKEN, "1d"); // 7days, 14days, 30days
-    const otherUsers = users.filter((u) => u.username !== username);
-    const targetUser = { ...user, refreshToken };
+    const { accessToken, refreshToken, tokenizedUser } = injectUserWithToken(
+      allUsers,
+      targetUser,
+      username
+    );
 
-    // console.log({ accessToken, refreshToken, targetUser, otherUsers })
-
-    await writeJsonFile([...otherUsers, targetUser], usersDatabase);
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-    });
+    await writeJsonFile(tokenizedUser, usersDatabase);
+    res.cookie("jwt", refreshToken, cookieOptions);
     res.status(200).json({ message: "Login successful", accessToken });
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -113,5 +100,38 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ message: "Error deleting user", error });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    let { cookies } = req;
+
+    if (!cookies || !cookies.jwt) {
+      return res.status(204).json({ message: "Token Erased" });
+    }
+
+    const refreshToken = cookies.jwt;
+
+    const allUsers = await readJsonFile(usersDatabase);
+    const targetUser = allUsers.find(
+      (user) => user.refreshToken === refreshToken
+    );
+
+    if (!targetUser) {
+      res.clearCookie("jwt", cookieOptions);
+      return res.status(204).json({ message: "Token Erased" });
+    }
+    const currentuser = { ...targetUser, refreshToken: null };
+    const otherUsers = allUsers.filter(
+      (user) => user.refreshToken !== targetUser.refreshToken
+    );
+    otherUsers.push(currentuser);
+    await writeJsonFile(otherUsers, usersDatabase);
+    res.clearCookie("jwt", cookieOptions); //secure: true on https
+    res.status(204).json({ message: "Token Erased" });
+  } catch (error) {
+    console.error("Error handling refresh token:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

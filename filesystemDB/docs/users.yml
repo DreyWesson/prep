@@ -241,5 +241,51 @@ paths:
                 properties:
                   message:
                     type: string
-
-    
+  /users/refresh-token:
+    get:
+      summary: "Handle refresh token"
+      tags: [Users]
+      responses:
+        200:
+          description: "New access token generated"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "New Access Token Generated"
+                  accessToken:
+                    type: string
+                    example: "new-access-token"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        403:
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Forbidden"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"

@@ -10,7 +10,7 @@ export const validateJWT = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: "Forbidden" });
     }
-    console.log({ decoded })
+    console.log("Decoded JWT:", decoded);
     req.user = decoded;
     next();
   });

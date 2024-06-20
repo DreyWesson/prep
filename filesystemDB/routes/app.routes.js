@@ -1,8 +1,17 @@
 import express from "express";
-import { validateItem, validateRegistration } from "../middleware/validator.middleware.js";
+import {
+  validateItem,
+  validateRegistration,
+} from "../middleware/validator.middleware.js";
 import { swaggerSpec, swaggerUi } from "../docs/index.js";
-import { deleteUser, getUsers, loginUser, registerUser } from "../controllers/fs/users.fs.controllers.js";
+import {
+  deleteUser,
+  getUsers,
+  loginUser,
+  registerUser,
+} from "../controllers/fs/users.fs.controllers.js";
 import { validateJWT } from "../middleware/jwt.middleware.js";
+import { handleRefreshToken } from "../controllers/fs/token.controller.js";
 
 export default function ({ itemController, homeController }) {
   const router = express.Router();
@@ -17,8 +26,9 @@ export default function ({ itemController, homeController }) {
 
   router.route("/users").get(validateJWT, getUsers);
   router.route("/users/register").post(validateRegistration, registerUser);
-  router.route("/users").delete(deleteUser);
+  router.route("/users").delete(deleteUser); // future feature: validateJWT
   router.route("/users/login").post(loginUser);
+  router.route("/users/refresh-token").get(handleRefreshToken);
 
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
