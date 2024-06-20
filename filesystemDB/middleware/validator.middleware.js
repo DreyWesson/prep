@@ -49,6 +49,7 @@ export const validateRegistration = [
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
+
     if (invalidFields.length > 0) {
       errors.errors.push({
         msg: `Invalid fields: ${invalidFields.join(", ")}`,

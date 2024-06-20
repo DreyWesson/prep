@@ -1,7 +1,8 @@
 import express from "express";
 import { validateItem, validateRegistration } from "../middleware/validator.middleware.js";
 import { swaggerSpec, swaggerUi } from "../docs/index.js";
-import { getUsers, registerUser } from "../controllers/fs/users.fs.controllers.js";
+import { deleteUser, getUsers, loginUser, registerUser } from "../controllers/fs/users.fs.controllers.js";
+import { validateJWT } from "../middleware/jwt.middleware.js";
 
 export default function ({ itemController, homeController }) {
   const router = express.Router();
@@ -9,13 +10,15 @@ export default function ({ itemController, homeController }) {
   const { createItem, getItems, updateItem, deleteItem } = itemController;
   const { getHome } = homeController;
 
-  router.route("/").get(getHome);
+  router.route("/").get(validateJWT, getHome);
 
   router.route("/items").get(getItems).post(validateItem, createItem);
   router.route("/items/:id").put(validateItem, updateItem).delete(deleteItem);
 
-  router.route("/users").get(getUsers);
+  router.route("/users").get(validateJWT, getUsers);
   router.route("/users/register").post(validateRegistration, registerUser);
+  router.route("/users").delete(deleteUser);
+  router.route("/users/login").post(loginUser);
 
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

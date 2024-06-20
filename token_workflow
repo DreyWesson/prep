@@ -1,0 +1,19 @@
+# Interaction Workflow
+
+- User Authentication:
+    - User logs in with their credentials (username and password).
+    - Server verifies credentials and generates both an access token and a refresh token.
+    - The access token is sent to the client (typically stored in memory).
+    - The refresh token is sent and stored securely (e.g., in an httpOnly cookie).
+
+- Access Protected Resources:
+    - Client includes the access token in the Authorization header of each request to the server.
+
+- Token Expiration:
+    - When the access token expires, the client needs to get a new one.
+    - The client sends the refresh token to the server to get a new access token.
+
+- Token Refresh Endpoint:
+    - Server verifies the refresh token.
+    - If valid, the server issues a new access token.
+    - If the refresh token is invalid or expired, the user may need to log in again.

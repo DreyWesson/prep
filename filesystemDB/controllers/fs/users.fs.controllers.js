@@ -2,10 +2,18 @@ import { connectFS } from "../../config/fs.config.js";
 import { readJsonFile, writeJsonFile } from "../../models/fs/fs.models.js";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
 const usersDatabase = connectFS(process.env.USERS_DB_PATH);
+
+const setToken = (user, token, expiresIn) => {
+  return jwt.sign({ username: user.username, id: user.id }, token, {
+    expiresIn,
+  });
+};
 
 export const getUsers = async (req, res) => {
   const users = await readJsonFile(usersDatabase);
@@ -16,7 +24,7 @@ export const getUsers = async (req, res) => {
 export const registerUser = async (req, res) => {
   try {
     const users = await readJsonFile(usersDatabase);
-    const { body } = req;
+    let { body } = req;
     if (!body.username || !body.password) {
       return res
         .status(400)
@@ -25,14 +33,85 @@ export const registerUser = async (req, res) => {
     const existingUser = users.find((user) => user.username === body.username);
 
     if (existingUser) {
-      return res.status(409).json({ message: "Username already exists" });
+      return res.status(409).json({ message: "User already exists" });
     }
-    body.password = bcrypt.hashSync(body.password, 13);
+    body = {
+      ...body,
+      id: randomUUID(),
+      password: await bcrypt.hash(body.password, 10),
+      createdAt: new Date().toISOString(),
+    };
+
     users.push(body);
     await writeJsonFile(users, usersDatabase);
     res.status(201).json({ message: "User registered", data: body });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ message: "Error registering user", error });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const users = await readJsonFile(usersDatabase);
+    const { username, password } = req.body;
+    const user = users.find((user) => user.username === username);
+
+    if (!user) {
+      return res.status(404).json({ message: "Invalid credentials" });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    // Create a JWT token
+    const accessToken = setToken(user, process.env.ACCESS_TOKEN, "60s"); // {balanced: 30min - 1h, high security: 5- 15min}
+    const refreshToken = setToken(user, process.env.REFRESH_TOKEN, "1d"); // 7days, 14days, 30days
+    const otherUsers = users.filter((u) => u.username !== username);
+    const targetUser = { ...user, refreshToken };
+
+    // console.log({ accessToken, refreshToken, targetUser, otherUsers })
+
+    await writeJsonFile([...otherUsers, targetUser], usersDatabase);
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
+    });
+    res.status(200).json({ message: "Login successful", accessToken });
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({ message: "Error logging in user", error });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const users = await readJsonFile(usersDatabase);
+    const { username, password } = req.body;
+    const user = users.find((user) => user.username === username);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const filteredUsers = users.filter((user) => user.username !== username);
+
+    if (filteredUsers.length !== users.length) {
+      await writeJsonFile(filteredUsers, usersDatabase);
+      res.status(200).json({ message: "User deleted" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Error deleting user", error });
   }
 };

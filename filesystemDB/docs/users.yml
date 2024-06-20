@@ -3,6 +3,8 @@ paths:
     get:
       summary: Retrieve a list of users
       tags: [Users]
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: A list of users.
@@ -17,6 +19,49 @@ paths:
                       type: string
                     password:
                       type: string
+    delete:
+      summary: Delete an existing user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: User deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
 
   /users/register:
     post:
@@ -74,7 +119,7 @@ paths:
                   password:
                     type: string
         404:
-          description: User not found.
+          description: Invalid credentials
           content:
             application/json:
               schema:
@@ -153,15 +198,15 @@ paths:
                   message:
                     type: string
 
-  /users/{id}:
+  /users/{username}:
     put:
       summary: Update an existing user
       tags: [Users]
       parameters:
         - in: path
-          name: id
+          name: username
           schema:
-            type: integer
+            type: string
           required: true
           description: The user ID
       requestBody:
@@ -197,32 +242,4 @@ paths:
                   message:
                     type: string
 
-    delete:
-      summary: Delete an existing user
-      tags: [Users]
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-          description: The user ID
-      responses:
-        200:
-          description: User deleted.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: User not found.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+    

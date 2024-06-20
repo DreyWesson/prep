@@ -3,14 +3,19 @@ In this article, Im going to cover a robust backend development use some best pr
 - [x] CRUD and HTTP protocol
 - [x] Testing (Jest)
 - [x] Dependency injection
+- [x] TDD
 - [x] Documentation (using Swagger)
 - [x] Versioning
 - [x] server debugging & custom middleware e.g request logs and error handler
 - [x] Database (filesystem)
-- [ ] SSL, Authorization & Authentication, Rate Limiting, Input Validation, permission and roles
-- [ ] Database (NoSQL)
+- [ ] SSL
+- [ ] Authorization & Authentication
+- [x] Input Validation
+- [ ] Permission and Roles
+- [x] Database (NoSQL)
 - [ ] Database (SQL)
 - [ ] Database (GraphQL)
+- [ ] Rate Limiting
 - [ ] Caching and Perf
 - [ ] Containerization and Microservices
 - [ ] CI/CD
