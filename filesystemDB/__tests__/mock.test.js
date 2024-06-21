@@ -8,18 +8,58 @@ const updateItem = jest.fn((req, res) => res.status(200).json(req.body));
 const deleteItem = jest.fn((req, res) =>
   res.status(200).json({ message: "Item deleted" })
 );
+
+const getUsers = jest.fn((req, res) => res.status(200).json([req.body]));
+const deleteUser = jest.fn((req, res) =>
+  res.status(200).json({ message: "User deleted" })
+);
+const loginUser = jest.fn((req, res) =>
+  res.status(200).json({ message: "Login successful" })
+);
+const logoutUser = jest.fn((req, res) =>
+  res.status(200).json({ message: "Logout successful" })
+);
+const registerUser = jest.fn((req, res) =>
+  res.status(201).json({ message: "User registered" })
+);
+const handleRefreshToken = jest.fn((req, res) =>
+  res.status(200).json({ message: "Token refreshed" })
+);
+
+const errorLoggerTestRoute = jest.fn((req, res) =>
+  res.status(200).json({ message: "Error Logger Test Route" })
+);
+const errorRoute = jest.fn((req, res) =>
+  res.status(404).json({ message: "Error Route" })
+);
+
 const getHome = jest.fn((req, res) =>
   res.status(200).json({ message: "Home" })
 );
 
+const itemController = {
+  getItems,
+  createItem,
+  updateItem,
+  deleteItem,
+};
+
+const userController = {
+  getUsers,
+  deleteUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+  handleRefreshToken,
+};
+
+const otherControllers = { errorLoggerTestRoute, errorRoute };
+
 const app = injectApp({
-  itemController: {
-    getItems,
-    createItem,
-    updateItem,
-    deleteItem,
-  },
+  itemController,
   homeController: { getHome },
+  userController,
+  otherControllers,
 });
 
 describe("Items API", () => {
@@ -36,9 +76,7 @@ describe("Items API", () => {
       expect(getItems.mock.calls.length).toBe(1);
       expect(status).toBe(200);
       expect(body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({})
-        ])
+        expect.arrayContaining([expect.objectContaining({})])
       );
     });
   });
@@ -57,14 +95,18 @@ describe("Items API", () => {
       expect(createItem.mock.calls.length).toBe(1);
       expect(createItem.mock.calls[0][0].body).toEqual(item);
       expect(status).toEqual(201);
-      expect(body).toEqual(expect.objectContaining({
-        id: expect.any(Number),
-        name: expect.any(String),
-      }));
-      expect(body).toEqual(expect.objectContaining({
-        id: item.id,
-        name: item.name,
-      }));
+      expect(body).toEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: expect.any(String),
+        })
+      );
+      expect(body).toEqual(
+        expect.objectContaining({
+          id: item.id,
+          name: item.name,
+        })
+      );
     }
   });
 

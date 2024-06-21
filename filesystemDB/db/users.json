@@ -1,9 +1,1 @@
-[
-  {
-    "username": "string",
-    "password": "$2b$10$uCDVGDJVJJYyrD7x277aj.28cwwhPGdGa83Xh6MZ1fH0GYljUiiE2",
-    "id": "055e9f4e-4db5-4ffe-82b1-ac6f525c0699",
-    "createdAt": "2024-06-21T08:53:50.037Z",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN0cmluZyIsInBhc3N3b3JkIjoiJDJiJDEwJHVDRFZHREpWSkpZeXJEN3gyNzdhai4yOGN3d2hQR2RHYTgzWGg2TVoxZkgwR1lsalVpaUUyIiwiaWQiOiIwNTVlOWY0ZS00ZGI1LTRmZmUtODJiMS1hYzZmNTI1YzA2OTkiLCJjcmVhdGVkQXQiOiIyMDI0LTA2LTIxVDA4OjUzOjUwLjAzN1oiLCJyZWZyZXNoVG9rZW4iOm51bGwsImlhdCI6MTcxODk2MTE1OSwiZXhwIjoxNzE5MDQ3NTU5fQ.SLoPYgSGMZVUwXTPPwGl7RzDY0vne4K6qsRPk_yyr54"
-  }
-]
+[]

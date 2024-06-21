@@ -1,37 +1,30 @@
-import express from "express";
 import cors from "cors";
-import appRoutes from "./routes/app.routes.js";
-import { corsOptions } from "./config/cors.config.js";
-import { logger } from "./middleware/logger.middleware.js";
-import { errorLogger } from "./middleware/error.middleware.js";
-import { errorRoute } from "./routes/error.routes.js";
+import express from "express";
 import cookieParser from "cookie-parser";
+import appRoutes from "./routes/index.routes.js";
+import { corsOptions } from "./config/cors.config.js";
+import { logger, errorLogger } from "./middleware/index.middleware.js";
+// import { errorLoggerTestRoute, errorRoute } from "./controllers/fs/other.fs.controllers.js";
 
-export default function injectApp(database) {
-  if (!database) {
-    throw new Error("Connect database...");
-  }
-  // Create Express App
+export default function createServer(database) {
+  if (!database)
+    throw new Error("Pls, Connect a database...");
+
   const app = express();
 
+  const { errorLoggerTestRoute, errorRoute } = database.otherControllers;
   // Middleware
   app.use(logger);
   app.use(express.json());
   app.use(cors(corsOptions));
   app.use(cookieParser());
+
   // Routes
   app.use("/api/v1", appRoutes(database));
-    app.get("/error", (req, res, next) => {
-      try {
-        throw new Error("Deliberate error: testing error middleware");
-      } catch (error) {
-        next(error);
-      }
-    });
+  app.get("/error", errorLoggerTestRoute);
   app.use("*", errorRoute);
 
-
-  // Error Middleware
+  // Error Logs Middleware
   app.use(errorLogger);
 
   return app;
