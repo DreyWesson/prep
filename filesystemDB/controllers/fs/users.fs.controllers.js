@@ -1,13 +1,14 @@
-import { connectFS, ejectToken, injectToken } from "../../config/fs.config.js";
+import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 import {
   appendData,
   findData,
   readJsonFile,
   removeDataBy,
-} from "../../models/fs/fs.models.js";
-import bcrypt from "bcrypt";
-import { randomUUID } from "crypto";
-import { cookieOptions } from "../../config/token.config.js";
+  } from "../../models/fs/fs.models.js";
+  import { verifyToken } from "../../middleware/auth.middleware.js";
+  import { cookieOptions, setToken } from "../../config/token.config.js";
+  import { connectFS, ejectToken, injectToken } from "../../config/fs.config.js";
 
 const usersDatabase = connectFS(process.env.USERS_DB_PATH);
 
@@ -156,14 +157,16 @@ export const handleRefreshToken = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     // Verify the refresh token
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ message: "Invalid refresh token" });
-      }
+    try {
+      const decodedToken = await verifyToken(
+        refreshToken,
+        process.env.REFRESH_TOKEN
+      );
 
-      if (decoded.username !== targetUser.username) {
+      if (decodedToken.username !== targetUser.username) {
         return res.status(403).json({ message: "User mismatch" });
       }
+
       const newAccessToken = setToken(
         targetUser,
         process.env.ACCESS_TOKEN,
@@ -173,7 +176,9 @@ export const handleRefreshToken = async (req, res) => {
         message: "New Access Token Generated",
         accessToken: newAccessToken,
       });
-    });
+    } catch (err) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
   } catch (error) {
     console.error("Error handling refresh token:", error);
     res.status(500).json({ message: "Internal Server Error" });

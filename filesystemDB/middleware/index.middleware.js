@@ -1,5 +1,13 @@
-import { validateJWT, credentials } from "./other.middleware.js";
+import { credentials } from "./other.middleware.js";
+import { validateAccessToken } from "./auth.middleware.js";
 import { logger, errorLogger } from "./logger.middleware.js";
 import { validateItem, validateRegistration } from "./validator.middleware.js";
 
-export { errorLogger, validateJWT, logger, validateItem, validateRegistration, credentials };
+export {
+  errorLogger,
+  validateAccessToken,
+  logger,
+  validateItem,
+  validateRegistration,
+  credentials,
+};

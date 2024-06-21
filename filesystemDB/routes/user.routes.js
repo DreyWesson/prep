@@ -1,7 +1,7 @@
 import express from "express";
 import {
   validateRegistration,
-  validateJWT,
+  validateAccessToken,
 } from "../middleware/index.middleware.js";
 
 const userRouter = ({
@@ -14,7 +14,7 @@ const userRouter = ({
 }) => {
   const router = express.Router();
 
-  router.route("/").get(validateJWT, getUsers).delete(deleteUser);
+  router.route("/").get(validateAccessToken, getUsers).delete(deleteUser);
   router.route("/login").post(loginUser);
   router.route("/logout").get(logoutUser);
   router.route("/register").post(validateRegistration, registerUser);

@@ -1,6 +1,6 @@
 import request from "supertest";
-import injectApp from "../app.js";
 import { jest } from "@jest/globals";
+import creatServer from "../app.js";
 
 const getItems = jest.fn((req, res) => res.status(200).json([req.body]));
 const createItem = jest.fn((req, res) => res.status(201).json(req.body));
@@ -55,7 +55,7 @@ const userController = {
 
 const otherControllers = { errorLoggerTestRoute, errorRoute };
 
-const app = injectApp({
+const app = creatServer({
   itemController,
   homeController: { getHome },
   userController,

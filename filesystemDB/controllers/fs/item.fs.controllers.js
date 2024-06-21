@@ -39,7 +39,7 @@ export async function updateItem(req, res) {
     if (index !== -1) {
       items[index] = updatedItem;
       await writeJsonFile(items, fsDatabase);
-      res.status(200).json({data: updatedItem, message: "Item updated"});
+      res.status(200).json({ data: updatedItem, message: "Item updated" });
     } else {
       res.status(404).json({ message: "Item not found" });
     }
@@ -50,7 +50,7 @@ export async function updateItem(req, res) {
 }
 
 export async function deleteItem(req, res) {
-  try { 
+  try {
     const items = await readJsonFile(fsDatabase);
     const id = parseInt(req.params.id, 10);
     const filteredItems = items.filter((item) => item.id !== id);

@@ -12,9 +12,11 @@ export default function createServer(database) {
   const app = express();
 
   const { errorLoggerTestRoute, errorRoute } = database.otherControllers;
+  
   // Middleware
   app.use(logger);
   app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
   app.use(credentials) // must use this middleware before cors
   app.use(cors(corsOptions));
   app.use(cookieParser());

@@ -1,16 +1,16 @@
 import request from "supertest";
-import injectApp from "../app.js";
+import mongoose from "mongoose";
+import createServer from "../app.js";
+import { connectNOSQL } from "../config/nosql.config.js";
 import * as fsDatabase from "../controllers/fs/index.fs.controllers.js";
 import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js";
-import { connectNOSQL } from "../config/nosql.config.js";
-import mongoose from "mongoose";
 
 const database = (false) ? nosqlDatabase : fsDatabase;
 
 connectNOSQL();
 const testID = 42;
 
-const app = injectApp(database);
+const app = createServer(database);
 
 afterAll(async () => {
   await mongoose.connection.close();

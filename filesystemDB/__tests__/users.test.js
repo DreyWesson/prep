@@ -1,17 +1,17 @@
 import request from "supertest";
-import injectApp from "../app.js";
+import mongoose from "mongoose";
+import creatServer from "../app.js";
+import { connectNOSQL } from "../config/nosql.config.js";
+import { verifyToken } from "../middleware/auth.middleware.js";
 import * as fsDatabase from "../controllers/fs/index.fs.controllers.js";
 import * as nosqlDatabase from "../controllers/nosql/index.nosql.controllers.js";
-import { connectNOSQL } from "../config/nosql.config.js";
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
 
 const database = false ? nosqlDatabase : fsDatabase;
 // dotenv.config();
 
 connectNOSQL();
 
-const app = injectApp(database);
+const app = creatServer(database);
 const user = { username: "test", password: "test" };
 
 afterAll(async () => {
@@ -93,8 +93,8 @@ describe("Users API", () => {
       expect(body).toHaveProperty("message", "Login successful");
       expect(body).toHaveProperty("accessToken");
       user.accessToken = body.accessToken; // In-memory storage of refreshToken for testing
-      const decodedToken = jwt.verify(
-        body.accessToken,
+      const decodedToken = await verifyToken(
+        user.accessToken,
         process.env.ACCESS_TOKEN
       );
       expect(decodedToken).toEqual(

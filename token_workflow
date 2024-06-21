@@ -2,9 +2,11 @@
 
 - User Authentication:
     - User logs in with their credentials (username and password).
-    - Server verifies credentials and generates both an access token and a refresh token.
+    - Server verifies credentials and generates both an access token (short-lived and used to access protected resource) and a refresh token(long-lived, used to obtain new access tokens).
+
+- Token Ditribution:
     - The access token is sent to the client (typically stored in memory).
-    - The refresh token is sent and stored securely (e.g., in an httpOnly cookie).
+    - The refresh token is sent and stored securely (e.g., in an httpOnly cookie), which helps protect it from being accessed by client-side scripts.
 
 - Access Protected Resources:
     - Client includes the access token in the Authorization header of each request to the server.

@@ -1,8 +1,9 @@
 import express from "express";
-import { swaggerSpec, swaggerUi } from "../docs/index.js";
+import swaggerUi from "swagger-ui-express";
 import userRouter from "./user.routes.js";
 import itemRouter from "./item.routes.js";
 import otherRouter from "./others.routes.js";
+import { swaggerSpec } from "../docs/index.js";
 
 
 export default function ({ itemController, homeController, userController }) {
