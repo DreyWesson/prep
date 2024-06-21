@@ -2,7 +2,8 @@ import { config as configDotenv } from "dotenv";
 
 configDotenv();
 
-const allowedOrigins = ["http://localhost"];
+export const allowedOrigins = ["http://localhost"];
+
 const checkEnv =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 

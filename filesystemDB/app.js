@@ -3,8 +3,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import appRoutes from "./routes/index.routes.js";
 import { corsOptions } from "./config/cors.config.js";
-import { logger, errorLogger } from "./middleware/index.middleware.js";
-// import { errorLoggerTestRoute, errorRoute } from "./controllers/fs/other.fs.controllers.js";
+import { logger, errorLogger, credentials } from "./middleware/index.middleware.js";
 
 export default function createServer(database) {
   if (!database)
@@ -16,6 +15,7 @@ export default function createServer(database) {
   // Middleware
   app.use(logger);
   app.use(express.json());
+  app.use(credentials) // must use this middleware before cors
   app.use(cors(corsOptions));
   app.use(cookieParser());
 

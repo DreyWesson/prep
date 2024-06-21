@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { allowedOrigins } from "../config/cors.config.js";
 
 export const validateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -15,6 +16,14 @@ export const validateJWT = (req, res, next) => {
   });
 };
 
-// export const credentials = (req, res, next) => {
-
-// };
+export const credentials = (req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.indexOf(origin) !== -1) {
+    res.header("Access-Control-Allow-Origin", true);
+    // you can use this middleware to determine allowed methods
+    // res.header("Access-Control-Allow-Headers", "Authorization");
+    // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    // res.header("Access-Control-Allow-Credentials", "true");
+  }
+  next();
+};
