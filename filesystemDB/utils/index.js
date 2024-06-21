@@ -1,9 +1,7 @@
 import fs from "fs";
 import YAML from "yaml";
 
-export const filterOtherUsers = (allUsers, username) => {
-  return allUsers.filter((u) => u.username !== username);
-};
+
 
 export const loadYamlFile = (filePath) => {
   const file = fs.readFileSync(filePath, "utf8");

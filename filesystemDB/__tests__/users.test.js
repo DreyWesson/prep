@@ -152,8 +152,6 @@ describe("Users API", () => {
     });
   });
 
-  
-
   describe("DELETE /api/v1/users", () => {
     it("should return 401 if password is incorrect", async () => {
       const { body, status } = await request(app)
@@ -182,4 +180,6 @@ describe("Users API", () => {
       expect(body).toHaveProperty("message", "User deleted");
     });
   });
+
+  /// @TODO: Add tests for /api/v1/users/logout and /api/v1/users/refresh-token
 });

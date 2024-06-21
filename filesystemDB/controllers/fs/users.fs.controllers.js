@@ -1,5 +1,11 @@
-import { connectFS, injectUserWithToken } from "../../config/fs.config.js";
-import { readJsonFile, writeJsonFile } from "../../models/fs/fs.models.js";
+import { connectFS, ejectToken, injectToken } from "../../config/fs.config.js";
+import {
+  appendData,
+  findData,
+  readJsonFile,
+  removeDataBy,
+  writeJsonFile,
+} from "../../models/fs/fs.models.js";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import { cookieOptions } from "../../config/token.config.js";
@@ -21,7 +27,8 @@ export const registerUser = async (req, res) => {
         .status(400)
         .json({ message: "Username and password are required" });
     }
-    const existingUser = users.find((user) => user.username === body.username);
+
+    const existingUser = await findData(users, "username", body.username);
 
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
@@ -32,9 +39,7 @@ export const registerUser = async (req, res) => {
       password: await bcrypt.hash(body.password, 10),
       createdAt: new Date().toISOString(),
     };
-
-    users.push(body);
-    await writeJsonFile(users, usersDatabase);
+    await appendData(users, body, usersDatabase);
     res.status(201).json({ message: "User registered", data: body });
   } catch (error) {
     console.error("Error registering user:", error);
@@ -46,7 +51,7 @@ export const loginUser = async (req, res) => {
   try {
     const allUsers = await readJsonFile(usersDatabase);
     const { username, password } = req.body;
-    const targetUser = allUsers.find((user) => user.username === username);
+    const targetUser = await findData(allUsers, "username", username);
 
     if (!targetUser) {
       return res.status(404).json({ message: "Invalid credentials" });
@@ -58,13 +63,10 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
     // Create a JWT token
-    const { accessToken, refreshToken, tokenizedUser } = injectUserWithToken(
-      allUsers,
-      targetUser,
-      username
-    );
-
-    await writeJsonFile(tokenizedUser, usersDatabase);
+    const otherUsers = removeDataBy(allUsers, "username", username);
+    const { accessToken, refreshToken, tokenizedUser } =
+      injectToken(targetUser);
+    await appendData(otherUsers, tokenizedUser, usersDatabase);
     res.cookie("jwt", refreshToken, cookieOptions);
     res.status(200).json({ message: "Login successful", accessToken });
   } catch (error) {
@@ -77,7 +79,7 @@ export const deleteUser = async (req, res) => {
   try {
     const users = await readJsonFile(usersDatabase);
     const { username, password } = req.body;
-    const user = users.find((user) => user.username === username);
+    const user = await findData(users, "username", username);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -89,10 +91,10 @@ export const deleteUser = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const filteredUsers = users.filter((user) => user.username !== username);
+    const filteredUsers = removeDataBy(users, "username", username);
 
     if (filteredUsers.length !== users.length) {
-      await writeJsonFile(filteredUsers, usersDatabase);
+      await appendData(filteredUsers, null, usersDatabase);
       res.status(200).json({ message: "User deleted" });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -104,6 +106,7 @@ export const deleteUser = async (req, res) => {
 };
 
 export const logoutUser = async (req, res) => {
+  // On client side, delete the accessToken from memory too
   try {
     let { cookies } = req;
 
@@ -114,21 +117,20 @@ export const logoutUser = async (req, res) => {
     const refreshToken = cookies.jwt;
 
     const allUsers = await readJsonFile(usersDatabase);
-    const targetUser = allUsers.find(
-      (user) => user.refreshToken === refreshToken
-    );
+    const targetUser = await findData(allUsers, "refreshToken", refreshToken);
 
     if (!targetUser) {
       res.clearCookie("jwt", cookieOptions);
       return res.status(204).json({ message: "Token Erased" });
     }
-    const currentuser = { ...targetUser, refreshToken: null };
-    const otherUsers = allUsers.filter(
-      (user) => user.refreshToken !== targetUser.refreshToken
+    const otherUsers = removeDataBy(
+      allUsers,
+      "refreshToken",
+      targetUser.refreshToken
     );
-    otherUsers.push(currentuser);
-    await writeJsonFile(otherUsers, usersDatabase);
-    res.clearCookie("jwt", cookieOptions); //secure: true on https
+    const loggedOutUser = ejectToken(targetUser);
+    await appendData(otherUsers, loggedOutUser, usersDatabase);
+    res.clearCookie("jwt", cookieOptions);
     res.status(204).json({ message: "Token Erased" });
   } catch (error) {
     console.error("Error handling refresh token:", error);

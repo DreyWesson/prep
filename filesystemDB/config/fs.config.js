@@ -1,7 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { setToken } from "./token.config.js";
-import { filterOtherUsers } from "../utils/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,21 +20,22 @@ export const selectDatabase = () => {
   return path[env] || path.development;
 };
 
-export const injectUserWithToken = (allUsers, user, username) => {
+export const injectToken = (user) => {
   try {
-    const accessToken = setToken(user, process.env.ACCESS_TOKEN, "60s");
+    const accessToken = setToken(user, process.env.ACCESS_TOKEN, "2400s");
     const refreshToken = setToken(user, process.env.REFRESH_TOKEN, "1d");
-
-    const otherUsers = filterOtherUsers(allUsers, username);
-    const targetUser = { ...user, refreshToken };
+    const tokenizedUser = { ...user, refreshToken };
 
     return {
       accessToken,
       refreshToken,
-      tokenizedUser: [...otherUsers, targetUser],
+      tokenizedUser,
     };
   } catch (error) {
     console.error("Error injecting user with token:", error);
     throw new Error("Token injection failed");
   }
 };
+
+
+export const ejectToken = (user) =>  ({ ...user, refreshToken: null });

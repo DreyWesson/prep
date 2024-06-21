@@ -62,6 +62,49 @@ paths:
                   message:
                     type: string
 
+  /users/{username}:
+      put:
+        summary: Update an existing user
+        tags: [Users]
+        parameters:
+          - in: path
+            name: username
+            schema:
+              type: string
+            required: true
+            description: The user ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  password:
+                    type: string
+        responses:
+          200:
+            description: The updated user.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    password:
+                      type: string
+          404:
+            description: User not found.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
 
   /users/register:
     post:
@@ -127,6 +170,29 @@ paths:
                 properties:
                   message:
                     type: string
+
+  /users/logout:
+    get:
+      tags: [Users]
+      summary: Logs out a user
+      description: Removes the refresh token cookie and invalidates the session.
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout successful"
+      '400':
+        description: Bad Request
+      '401':
+        description: Unauthorized
+      '500':
+        description: Internal Server Error
 
   /users/forgot-password:
     post:
@@ -198,49 +264,6 @@ paths:
                   message:
                     type: string
 
-  /users/{username}:
-    put:
-      summary: Update an existing user
-      tags: [Users]
-      parameters:
-        - in: path
-          name: username
-          schema:
-            type: string
-          required: true
-          description: The user ID
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-      responses:
-        200:
-          description: The updated user.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                  password:
-                    type: string
-        404:
-          description: User not found.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
   /users/refresh-token:
     get:
       summary: "Handle refresh token"
