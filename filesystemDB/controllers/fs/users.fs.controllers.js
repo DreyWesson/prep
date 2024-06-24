@@ -1,14 +1,14 @@
 import bcrypt from "bcrypt";
-import { randomUUID } from "crypto";
 import {
   appendData,
   findData,
   readJsonFile,
   removeDataBy,
-  } from "../../models/fs/fs.models.js";
-  import { verifyToken } from "../../middleware/auth.middleware.js";
-  import { cookieOptions, setToken } from "../../config/token.config.js";
-  import { connectFS, ejectToken, injectToken } from "../../config/fs.config.js";
+} from "../../models/fs/fs.models.js";
+import { initializeUser } from "../../utils/index.js";
+import { verifyToken } from "../../middleware/auth.middleware.js";
+import { cookieOptions, signToken } from "../../config/token.config.js";
+import { connectFS, ejectToken, injectToken } from "../../config/fs.config.js";
 
 const usersDatabase = connectFS(process.env.USERS_DB_PATH);
 
@@ -22,23 +22,16 @@ export const registerUser = async (req, res) => {
   try {
     const users = await readJsonFile(usersDatabase);
     let { body } = req;
-    if (!body.username || !body.password) {
+    if (!body.username || !body.password)
       return res
         .status(400)
         .json({ message: "Username and password are required" });
-    }
 
     const existingUser = await findData(users, "username", body.username);
-
-    if (existingUser) {
+    if (existingUser)
       return res.status(409).json({ message: "User already exists" });
-    }
-    body = {
-      ...body,
-      id: randomUUID(),
-      password: await bcrypt.hash(body.password, 10),
-      createdAt: new Date().toISOString(),
-    };
+
+    body = await initializeUser(body);
     await appendData(users, body, usersDatabase);
     res.status(201).json({ message: "User registered", data: body });
   } catch (error) {
@@ -149,14 +142,12 @@ export const handleRefreshToken = async (req, res) => {
     const refreshToken = cookies.jwt;
 
     const allUsers = await readJsonFile(usersDatabase);
-    const targetUser = allUsers.find(
-      (user) => user.refreshToken === refreshToken
-    );
+    const targetUser = await findData(allUsers, "refreshToken", refreshToken);
 
     if (!targetUser) {
       return res.status(403).json({ message: "Forbidden" });
     }
-    // Verify the refresh token
+
     try {
       const decodedToken = await verifyToken(
         refreshToken,
@@ -166,9 +157,9 @@ export const handleRefreshToken = async (req, res) => {
       if (decodedToken.username !== targetUser.username) {
         return res.status(403).json({ message: "User mismatch" });
       }
-
-      const newAccessToken = setToken(
-        targetUser,
+      decodedToken.roles = Object.values(targetUser.roles);
+      const newAccessToken = signToken(
+        { UserInfo: decodedToken },
         process.env.ACCESS_TOKEN,
         "60s"
       );

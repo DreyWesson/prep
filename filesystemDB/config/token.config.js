@@ -3,11 +3,12 @@ import jwt from "jsonwebtoken";
 
 dotenv.config();
 
-export const setToken = (user, secret, expiresIn) => {
-  const {username, id} = user;
-  const minimalCredentials = { username, id };
+export const signToken = (user, secret, expiresIn) => {
+  const { username, id, roles } = user;
+  const minimalCredentials = { username, id, roles: Object.values(roles) };
+
   try {
-    return jwt.sign(minimalCredentials, secret, {
+    return jwt.sign({ UserInfo: minimalCredentials }, secret, {
       expiresIn,
     });
   } catch (error) {

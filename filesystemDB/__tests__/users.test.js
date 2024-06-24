@@ -97,10 +97,12 @@ describe("Users API", () => {
         user.accessToken,
         process.env.ACCESS_TOKEN
       );
-      expect(decodedToken).toEqual(
+
+      expect(decodedToken?.UserInfo).toEqual(
         expect.objectContaining({
           username: user.username,
           id: expect.any(String),
+          roles: expect.any(Array),
         })
       );
     });
