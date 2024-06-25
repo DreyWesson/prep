@@ -1,19 +1,20 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import createServer from "./app.js";
-import { connectNOSQL } from "./config/nosql.config.js";
+import { connectNOSQL, mongooseStatus } from "./config/nosql.config.js";
 import { selectDB } from "./config/index.config.js";
-import { query } from "./config/sql.config.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 80;
+const db_type = "sql";
 
-connectNOSQL();
-mongoose.connection.on("connected", () => console.log("Connected to MongoDB"));
+if (db_type === "nosql") {
+  connectNOSQL();
+  mongooseStatus(mongoose);
+}
 
-const database = selectDB("nosql");
-
+const database = selectDB(db_type);
 
 createServer(database).listen(PORT, () =>
   console.log(`Server is running on port ${PORT}`)

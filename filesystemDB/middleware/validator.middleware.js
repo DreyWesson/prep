@@ -14,15 +14,15 @@ export const validateItem = [
   (req, res, next) => {
     const errors = validationResult(req);
 
-    const allowedFields = ["id", "name"];
-    const invalidFields = Object.keys(req.body).filter(
-      (key) => !allowedFields.includes(key)
-    );
-    if (invalidFields.length > 0) {
-      errors.errors.push({
-        msg: `Invalid fields: ${invalidFields.join(", ")}`,
-      });
-    }
+    // const allowedFields = ["id", "name"];
+    // const invalidFields = Object.keys(req.body).filter(
+    //   (key) => !allowedFields.includes(key)
+    // );
+    // if (invalidFields.length > 0) {
+    //   errors.errors.push({
+    //     msg: `Invalid fields: ${invalidFields.join(", ")}`,
+    //   });
+    // }
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
