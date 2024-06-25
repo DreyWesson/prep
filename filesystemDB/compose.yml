@@ -1,0 +1,80 @@
+services:
+  app:
+    build: .
+    container_name: app
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - NOSQL_URI=${NOSQL_URI}
+      - PORT=${PORT}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - REFRESH_TOKEN=${REFRESH_TOKEN}
+      - DEV_DB_PATH=${DEV_DB_PATH}
+      - TEST_DB_PATH=${TEST_DB_PATH}
+      - STAGING_DB_PATH=${STAGING_DB_PATH}
+      - PROD_DB_PATH=${PROD_DB_PATH}
+      - USERS_DB_PATH=${USERS_DB_PATH}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+      - mongo
+      - psql
+    volumes:
+      - .:/app
+    command: npm run start:dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: db_mongo
+    logging:
+      driver: "none"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  psql:
+    container_name: db_psql
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    ports:
+      - "5432:5432"
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  mongosh:
+    image: mongo:latest
+    container_name: mongo_shell
+    command: ["sleep", "infinity"]
+    networks:
+      - app-network
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data: {}
+  psql_data: {}
+
+networks:
+  app-network:

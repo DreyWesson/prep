@@ -1,0 +1,36 @@
+########################################
+#		POST ROUTES	       #
+########################################
+
+# @baseUrl =https://insta-memories.herokuapp.com
+@baseUrl=http://localhost:5001
+@posts=/api/posts/
+
+### GET POSTS
+GET {{baseUrl}}{{posts}}
+
+### CREATE POSTS
+POST {{baseUrl}}{{posts}}
+{
+
+}
+
+### UPDATE POSTS
+PATCH {{baseUrl}}{{posts}}/:id
+{
+
+}
+
+
+### DELETE POSTS
+POST {{baseUrl}}{{posts}}/:id
+{
+
+}
+
+
+### LIKE POSTS
+POST {{baseUrl}}{{posts}}/:id/like
+{
+
+}

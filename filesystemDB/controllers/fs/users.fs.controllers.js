@@ -127,7 +127,7 @@ export const logoutUser = async (req, res) => {
     res.status(204).json({ message: "Logout successful" });
   } catch (error) {
     console.error("Error handling refresh token:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });NOSQLOSQL
   }
 };
 

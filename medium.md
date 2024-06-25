@@ -8,10 +8,9 @@ In this article, Im going to cover a robust backend development use some best pr
 - [x] Versioning
 - [x] server debugging & custom middleware e.g request logs and error handler
 - [x] Database (filesystem)
-- [ ] SSL
-- [ ] Authorization & Authentication
+- [x] Authorization & Authentication
 - [x] Input Validation
-- [ ] Permission and Roles
+- [x] Permission and Roles
 - [x] Database (NoSQL)
 - [ ] Database (SQL)
 - [ ] Database (GraphQL)
@@ -19,6 +18,7 @@ In this article, Im going to cover a robust backend development use some best pr
 - [ ] Caching and Perf
 - [ ] Containerization and Microservices
 - [ ] CI/CD
+- [ ] SSL
 - [ ] Deployment
 
 

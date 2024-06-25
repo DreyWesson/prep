@@ -1,0 +1,15 @@
+-- CREATE TABLE
+CREATE TABLE IF NOT EXISTS "item" (
+  "id" BIGSERIAL PRIMARY KEY,
+  "name" VARCHAR(255) NOT NULL,
+  "description" TEXT NOT NULL,
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- INSERT
+INSERT INTO "item" ("name", "description")
+VALUES ('Item 1', 'Description 1');
+
+-- SELECT
+SELECT * FROM "item";
