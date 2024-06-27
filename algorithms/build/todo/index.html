@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <div class="input-group">
+            <input type="text" id="todo-input" placeholder="Enter a new todo">
+            <button id="add-btn">Add</button>
+            <select id="filter-dropdown">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+            </select>
+            <input type="text" id="search-input" placeholder="Search">
+            <button id="search-btn">Search</button>
+        </div>
+        <ul id="todo-list"></ul>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

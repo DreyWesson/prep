@@ -1,19 +1,20 @@
 In this article, Im going to cover a robust backend development use some best practices. The topics we are gonna cover will include
-- [x] Folder structuring
-- [x] CRUD and HTTP protocol
-- [x] Testing (Jest)
-- [x] Dependency injection
-- [x] TDD
-- [x] Documentation (using Swagger)
-- [x] Versioning
-- [x] server debugging & custom middleware e.g request logs and error handler
-- [x] Database (filesystem)
-- [x] Authorization & Authentication
-- [x] Input Validation
-- [x] Permission and Roles
-- [x] Database (NoSQL)
+- [ ] Folder structuring
+- [ ] Set up server
+- [ ] CRUD and HTTP protocol
+- [ ] Testing (Jest)
+- [ ] Dependency injection
+- [ ] TDD
+- [ ] Documentation (using Swagger)
+- [ ] Versioning
+- [ ] server debugging & custom middleware e.g request logs and error handler
+- [ ] Database (filesystem)
+- [ ] Authorization & Authentication
+- [ ] Input Validation
+- [ ] Permission and Roles
+- [ ] Database (NoSQL)
 - [ ] Database (SQL)
-- [ ] Database (GraphQL)
+- [ ] GraphQL VS REST api
 - [ ] Rate Limiting
 - [ ] Caching and Perf
 - [ ] Containerization and Microservices
@@ -23,7 +24,26 @@ In this article, Im going to cover a robust backend development use some best pr
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 - [ ] Promises
+- [ ] Async...await callbacks
 - [ ] classes and OOP
 
 
