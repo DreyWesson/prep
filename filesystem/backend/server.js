@@ -7,7 +7,7 @@ import { selectDB } from "./config/index.config.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 80;
-const db_type = "sql";
+const db_type = "fs";
 
 if (db_type === "nosql") {
   connectNOSQL();

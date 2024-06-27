@@ -12,18 +12,14 @@ process.on("uncaughtException", (error) => {
     process.exit(1);
 });
 
-//Initialize the app
 const app = express();
 
 connectToDB();
 
-//enable our app to parse JSON
 app.use(express.json());
 
-//declare our PORT
 const PORT = process.env.PORT || 5000;
 
-//Mount/Create Routes
 app.get("/test", (req, res) => {
     res.json({
         Hi: "Welcome to the MERN Library API",
@@ -31,7 +27,6 @@ app.get("/test", (req, res) => {
 });
 app.use("/api/v1/", bookRoutes);
 
-// Error middleware
 app.all("*", (req, res, next) => {
     next(
         new LibraryError(`Can't find ${req.originalUrl} on this server!`, 404)
@@ -39,7 +34,6 @@ app.all("*", (req, res, next) => {
 });
 app.use(ErrorsMiddleware);
 
-// Make the sever listen on the declared PORT variable
 const server = app.listen(
     PORT,
     console.log(
@@ -47,12 +41,10 @@ const server = app.listen(
     )
 );
 
-// Unhandled Rejection
 process.on("unhandledRejection", (error) => {
     console.log("Unhandled Rejection..... 💣 🔥 stopping the server....");
     console.log(error.name, error.message);
     server.close(() => {
-        // exit code 1 means that there is an issue that caused the program to exit
         process.exit(1);
     });
 });
