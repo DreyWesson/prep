@@ -4,22 +4,25 @@
 // previous values, that means that for N=5 → 2+3
 //For example: fibonacciRecursive(6) should return 8
 
-function fibonacciIterativeA(n) {
-  let arr = [0, 1];
-  for (let i = 2; i < n + 1; i++) {
-    arr.push(arr[i - 2] + arr[i - 1]);
-  }
-  console.log("tut: ", arr[n]);
-  return arr[n];
-}
-fibonacciIterativeA(100);
 
 function fibonacciRecursive(n, memo = []) {
+  console.log(n);
   if (memo[n] !== undefined) return memo[n];
   if (n <= 2) return 1;
-  let result =
-    fibonacciRecursive(n - 1, memo) + fibonacciRecursive(n - 2, memo);
-  memo[n] = result;
-  return result;
+  memo[n] = fibonacciRecursive(n - 1, memo) + fibonacciRecursive(n - 2, memo);
+  return memo[n];
 }
-console.log(fibonacciRecursive(100));
+console.log(fibonacciRecursive(5));
+
+function fibonacciIterativeB(n) {
+  let prevNum = 0, currentNum = 1;
+
+  for (let i = 2; i <= n; i++) {
+    let nextNum = prevNum + currentNum;
+    prevNum = currentNum;
+    currentNum = nextNum;
+  }
+
+  return currentNum;
+}
+console.log(fibonacciIterativeB(1000));

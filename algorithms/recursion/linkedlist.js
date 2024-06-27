@@ -15,7 +15,7 @@ let list = {
 function sumVal(list) {
     let value = 0;
     for (const subList of Object.values(list)) {
-        !isNaN(subList) ? (value += subList) : (value += sumVal(subList));
+        value += !isNaN(subList) ? subList : sumVal(subList);
     }
     return value;
 }

@@ -14,8 +14,8 @@ let company = {
 
 // The function to do the job
 function sumSalaries(department) {
-    if (Array.isArray(department)) {
-        return department.reduce((prev, current) => prev + current.salary, 0);
+    if (typeof department === 'object' && department.hasOwnProperty('salary')) {
+        return department.salary;
     } else {
         let sum = 0;
         for (let subdep of Object.values(department)) {

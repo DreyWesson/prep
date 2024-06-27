@@ -55,9 +55,32 @@ function smallest_subarray_sum(s, arr) {
   if (minLength === Infinity) return 0;
   return minLength;
 }
-console.log(smallestSum([2, 1, 5, 2, 6, 3, 2], 7));
+// console.log(smallestSum([2, 1, 5, 2, 6, 3, 2], 7));
 // console.log(smallestSum([1, 2, 3, 4, 5, 6, 7, 8, 10, 10], 20));
 // console.log(smallestSum([1, 2, 3, 4, 5, 6, 7, 8, 10, 11], 21));
 // console.log(smallestSum([2, 1, 2, 5, 8], 7));
-console.log(smallestSum([3, 1, 1, 6, 8, 4, 4], 8));
-console.log(smallest_subarray_sum(7, [2, 1, 5, 2, 6, 3, 2]));
+// console.log(smallestSum([3, 1, 1, 6, 8, 4, 4], 8));
+// console.log(smallest_subarray_sum(7, [2, 1, 5, 2, 6, 3, 2]));
+function smallest(arr, s) {
+  let len = 0;
+  let lead = 1;
+  let follow = 0;
+  let sum = arr[0];
+  while(lead < arr.length) {
+    if (sum > s) {
+      sum -= arr[follow];
+      follow++;
+      console.log()
+    }else if (sum < s) {
+      sum += arr[lead];
+      lead++;
+    } else {
+      len  = Math.max(len, lead - follow + 1);
+      lead++;
+      follow++;
+    }
+  }
+  return len;
+}
+console.log(smallest([3, 1, 1, 6, 8, 4, 4], 8));
+console.log(smallest([2, 1, 5, 2, 6, 3, 2], 7));
