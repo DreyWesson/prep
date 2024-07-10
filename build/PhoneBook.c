@@ -96,8 +96,6 @@ PhoneBook *addContact(PhoneBook *pb, const char *name, const char *phone_no)
     {
         new_contact->next = pb->head;
         pb->head = new_contact;
-        // free(new_contact);
-        // return prependContact(pb, name, phone_no);
     } else {
         prev->next = new_contact;
         new_contact->next = tmp;
