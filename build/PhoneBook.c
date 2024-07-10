@@ -2,20 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Contact {
-    char name [100];
-    char phone_no [20];
+typedef struct Contact
+{
+    char name[100];
+    char phone_no[20];
     struct Contact *next;
 } Contact;
 
-typedef struct {
+typedef struct
+{
     Contact *head;
     Contact *tail;
     size_t size;
 
 } PhoneBook;
-
-
 
 PhoneBook *createPhoneBook();
 Contact *createContact(const char *name, const char *phone_no);
@@ -24,24 +24,28 @@ PhoneBook *prependContact(PhoneBook *pb, const char *name, const char *phone_no)
 void listContacts(PhoneBook *pb);
 void clearAllContacts(PhoneBook *pb);
 void delAllContacts(PhoneBook *pb);
-Contact *getContact(PhoneBook *pb, char * target);
+Contact *getContact(PhoneBook *pb, char *target);
 PhoneBook *insertContact(PhoneBook *pb, Contact *c, size_t pos);
 
 // Init
-PhoneBook *createPhoneBook() {
+PhoneBook *createPhoneBook()
+{
     PhoneBook *phone_book = (PhoneBook *)malloc(sizeof(PhoneBook));
 
-    if (!phone_book) return NULL;
+    if (!phone_book)
+        return NULL;
 
     phone_book->head = phone_book->tail = NULL;
     phone_book->size = 0;
     return phone_book;
 }
 
-Contact *createContact(const char *name, const char *phone_no) {
+Contact *createContact(const char *name, const char *phone_no)
+{
     Contact *contact = (Contact *)malloc(sizeof(Contact));
 
-    if (!contact) return NULL;
+    if (!contact)
+        return NULL;
     strcpy(contact->name, name);
     strcpy(contact->phone_no, phone_no);
     contact->name[sizeof(contact->name) - 1] = '\0';
@@ -51,18 +55,78 @@ Contact *createContact(const char *name, const char *phone_no) {
     return contact;
 }
 
-PhoneBook *prependContact(PhoneBook *pb, const char *name, const char *phone_no) {
-    if (!pb) {
+int compareStr(const char *pb_name, const char *new_name)
+{
+    while (*pb_name && *pb_name == *new_name)
+    {
+        pb_name++;
+        new_name++;
+    }
+    return (*(unsigned char *)pb_name - *(unsigned char *)new_name);
+}
+
+PhoneBook *addContact(PhoneBook *pb, const char *name, const char *phone_no)
+{
+    if (!pb)
+    {
         pb = createPhoneBook();
         if (!pb) return NULL;
     }
+    Contact *new_contact = createContact(name, phone_no);
+    if (!new_contact) {
+        free(pb);
+        return NULL;
+    }
+
+    if (!pb->head)
+    {
+        pb->head = pb->tail = new_contact;
+        pb->size++;
+        return (pb);
+    }
+    Contact *tmp = pb->head;
+    Contact *prev = NULL;
+    while (tmp != NULL && compareStr(tmp->name, new_contact->name) < 0)
+    {
+        prev = tmp;
+        tmp = tmp->next;
+    }
+
+    if (!prev)
+    {
+        new_contact->next = pb->head;
+        pb->head = new_contact;
+        // free(new_contact);
+        // return prependContact(pb, name, phone_no);
+    } else {
+        prev->next = new_contact;
+        new_contact->next = tmp;
+        if (tmp == NULL)
+            pb->tail = new_contact;
+    }
+    pb->size++;
+    return pb;
+}
+
+PhoneBook *prependContact(PhoneBook *pb, const char *name, const char *phone_no)
+{
+    if (!pb)
+    {
+        pb = createPhoneBook();
+        if (!pb)
+            return NULL;
+    }
 
     Contact *new_contact = createContact(name, phone_no);
-    if (!new_contact) return NULL;
+    if (!new_contact)
+        return NULL;
 
-    if (!pb->head) {
+    if (!pb->head)
+    {
         pb->head = pb->tail = new_contact;
-    } else {
+    }
+    else
+    {
         new_contact->next = pb->head;
         pb->head = new_contact;
     }
@@ -71,18 +135,25 @@ PhoneBook *prependContact(PhoneBook *pb, const char *name, const char *phone_no)
     return pb;
 }
 
-PhoneBook *appendContact(PhoneBook *pb, const char *name, const char *phone_no) {
-    if (!pb) {
+PhoneBook *appendContact(PhoneBook *pb, const char *name, const char *phone_no)
+{
+    if (!pb)
+    {
         pb = createPhoneBook();
-        if (!pb) return NULL;
+        if (!pb)
+            return NULL;
     }
 
     Contact *new_contact = createContact(name, phone_no);
-    if (!new_contact) return NULL;
+    if (!new_contact)
+        return NULL;
 
-    if (!pb->head) {
+    if (!pb->head)
+    {
         pb->head = pb->tail = new_contact;
-    } else {
+    }
+    else
+    {
         pb->tail->next = new_contact;
         pb->tail = new_contact;
     }
@@ -92,8 +163,10 @@ PhoneBook *appendContact(PhoneBook *pb, const char *name, const char *phone_no) 
     return pb;
 }
 
-void listContacts(PhoneBook *pb) {
-    if (!pb || !pb->head) {
+void listContacts(PhoneBook *pb)
+{
+    if (!pb || !pb->head)
+    {
         printf("No contacts found.\n");
         return;
     }
@@ -108,8 +181,10 @@ void listContacts(PhoneBook *pb) {
     }
 }
 
-void clearAllContacts(PhoneBook *pb) {
-    if (pb && pb->head) {
+void clearAllContacts(PhoneBook *pb)
+{
+    if (pb && pb->head)
+    {
 
         Contact *tmp = pb->head;
         while (tmp)
@@ -126,8 +201,10 @@ void clearAllContacts(PhoneBook *pb) {
     printf("Contact list is empty\n");
 }
 
-void delAllContacts(PhoneBook *pb) {
-    if (!pb) {
+void delAllContacts(PhoneBook *pb)
+{
+    if (!pb)
+    {
         printf("PhoneBook not found\n");
         return;
     }
@@ -136,16 +213,18 @@ void delAllContacts(PhoneBook *pb) {
     printf("PhoneBook app deleted!\n");
 }
 
-Contact *getContact(PhoneBook *pb, char * target) {
+Contact *getContact(PhoneBook *pb, char *target)
+{
     Contact *c = pb->head;
     size_t i = 1;
 
     while (c)
     {
-        if (strstr(c->phone_no, target) || strstr(c->name, target)) {
+        if (strstr(c->phone_no, target) || strstr(c->name, target))
+        {
             printf("Target found!\n");
             printf("[%ld] %s  %s\n", i, c->name, c->phone_no);
-            return (c);   
+            return (c);
         }
         c = c->next;
         i++;
@@ -154,8 +233,10 @@ Contact *getContact(PhoneBook *pb, char * target) {
     return NULL;
 }
 
-void searchContacts(PhoneBook *pb, char *filterVal) {
-    if (!pb || !pb->head) {
+void searchContacts(PhoneBook *pb, char *filterVal)
+{
+    if (!pb || !pb->head)
+    {
         printf("No match found.\n");
         return;
     }
@@ -164,22 +245,26 @@ void searchContacts(PhoneBook *pb, char *filterVal) {
     Contact *c = pb->head;
     while (c)
     {
-        if (strstr(c->phone_no, filterVal) || strstr(c->name, filterVal)) {
-            printf("[%ld] %s  %s\n", i, c->name, c->phone_no);  
+        if (strstr(c->phone_no, filterVal) || strstr(c->name, filterVal))
+        {
+            printf("[%ld] %s  %s\n", i, c->name, c->phone_no);
         }
         c = c->next;
         i++;
     }
 }
 
-PhoneBook *insertContact(PhoneBook *pb, Contact *c, size_t pos) {
+PhoneBook *insertContact(PhoneBook *pb, Contact *c, size_t pos)
+{
     if (!pb)
         return NULL;
-    if (pos >= pb->size) {
+    if (pos >= pb->size)
+    {
         appendContact(pb, c->name, c->phone_no);
         return pb;
     }
-    if (pos == 0) {
+    if (pos == 0)
+    {
         prependContact(pb, c->name, c->phone_no);
         return pb;
     }
@@ -191,7 +276,8 @@ PhoneBook *insertContact(PhoneBook *pb, Contact *c, size_t pos) {
 
     while (tmp)
     {
-        if (i == pos) {
+        if (i == pos)
+        {
             printf("Here\n");
             break;
         }
@@ -205,15 +291,18 @@ PhoneBook *insertContact(PhoneBook *pb, Contact *c, size_t pos) {
     return pb;
 }
 
-PhoneBook *delOneContact(PhoneBook *pb, size_t pos) {
+PhoneBook *delOneContact(PhoneBook *pb, size_t pos)
+{
     if (!pb)
         return NULL;
-    if (pos >= pb->size) {
+    if (pos >= pb->size)
+    {
         printf("Out of range\n");
         return pb;
     }
 
-    if (pos == 0) {
+    if (pos == 0)
+    {
         Contact *cache = pb->head;
         pb->head = pb->head->next;
         free(cache);
@@ -244,28 +333,30 @@ PhoneBook *delOneContact(PhoneBook *pb, size_t pos) {
     return pb;
 }
 
-int main(void) {
+int main(void)
+{
     PhoneBook *pb = createPhoneBook();
-    if (!pb) return -1;
-    
-    appendContact(pb, "John Doe", "1234567890");
-    appendContact(pb, "Alice Brown", "8888888888");
-    appendContact(pb, "Alicia Keys", "5555555555");
-    appendContact(pb, "Jane Smith", "0987654321");
+    if (!pb)
+        return -1;
+
+    addContact(pb, "John Doe", "1234567890");
+    addContact(pb, "Kane Smith", "0987654321");
+    addContact(pb, "Plicia Keys", "5555555555");
+    addContact(pb, "Alice Brown", "8888888888");
+    addContact(pb, "Alice Wonderland", "9999999999");
     // getContact(pb, "Alice");
-    Contact *contact = createContact("Peter Thiel", "777777777777");
-    insertContact(
-        pb,
-        contact,
-        pb->size + 1
-    );
+    // Contact *contact = createContact("Peter Thiel", "777777777777");
+    // insertContact(
+    //     pb,
+    //     contact,
+    //     pb->size + 1);
     // searchContacts(pb, "J");
     // clearAllContacts(pb);
     listContacts(pb);
     printf("\n\n");
-    delOneContact(pb, 2);
-    free(contact);
-    listContacts(pb);
+    // delOneContact(pb, 2);
+    // listContacts(pb);
+    // free(contact);
     delAllContacts(pb);
     return (0);
 }
