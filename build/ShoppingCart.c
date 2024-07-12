@@ -33,13 +33,13 @@ typedef struct Cart
     double total_price;
 } Cart;
 
-typedef struct User {
+typedef struct User
+{
     char name[100];
     char email[100];
     char password[100];
     Cart *cart;
 } User;
-
 
 Cart *createCart();
 Item *createItem(char *name, int quant, double price);
@@ -132,7 +132,6 @@ Cart *removeItemFromCart(Cart *cart, char *target)
 {
     if (!target || !cart || !cart->head)
         return NULL;
-
 
     PickedItem *tmp = cart->head;
     PickedItem *prev = NULL;
@@ -258,9 +257,29 @@ PickedItem *getItemFromCart(Cart *cart, char *itemName)
 
     return NULL;
 }
-// PickedItem * createPickedItem() {
+PickedItem *createPickedItem(Item *item, int quantity)
+{
+    PickedItem *cartItem = (PickedItem *)malloc(sizeof(PickedItem));
+    if (!cartItem)
+        return NULL;
 
-// }
+    strcpy(cartItem->name, item->name);
+    cartItem->item = item;
+    cartItem->quantity = quantity;
+    cartItem->total = quantity * item->price;
+    cartItem->next = NULL;
+
+    return cartItem;
+}
+
+void updatePickedItem(PickedItem *cartItem, int newQuant, double newPrice)
+{
+    if (cartItem && newQuant && newPrice)
+    {
+        cartItem->quantity = newQuant;
+        cartItem->total = newQuant * newPrice;
+    }
+}
 
 Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
 {
@@ -270,41 +289,29 @@ Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
     if (!cart)
     {
         cart = createCart();
-        if (!cart) return NULL;
+        if (!cart)
+            return NULL;
     }
     Item *item = getItemFromStock(all, itemName);
     if (!item)
-    {
-        printf("We are out of stock for %s\n", itemName);
-        return cart;
-    }
+        return (printf("We are out of stock for %s\n", itemName), cart);
     if (item->available_quant < quantity)
-    {
-        printf("Sorry, only %d %s(s) left in stock\n", item->available_quant, item->name);
-        return cart;
-    }
+        return (printf("Sorry, only %d %s(s) left in stock\n", item->available_quant, item->name), cart);
+    
     PickedItem *cartItem = getItemFromCart(cart, itemName);
     if (!cartItem)
     {
-        cartItem = (PickedItem *)malloc(sizeof(PickedItem));
-        if (!cartItem) return NULL;
-
-        strcpy(cartItem->name, item->name);
-        cartItem->item = item;
-        cartItem->quantity = quantity;
-        cartItem->total = quantity * item->price;
-        cartItem->next = cart->head;
-        cart->head = cartItem;
-        cart->total_price += cartItem->total;
+        PickedItem *pickedItem = createPickedItem(item, quantity);
+        if (!pickedItem)
+            return cart;
+        pickedItem->next = cart->head;
+        cart->head = pickedItem;
+        cart->total_price += pickedItem->total;
         cart->size++;
     }
     else
-    {
-        strcpy(cartItem->name, item->name);
-        cartItem->item = item;
-        cartItem->quantity = quantity;
-        cartItem->total = quantity * item->price;
-    }
+        updatePickedItem(cartItem, quantity, item->price);
+
     return cart;
 }
 
@@ -319,7 +326,6 @@ void listCartItems(Cart *cart)
         items = items->next;
     }
 }
-
 
 void deleteShoppingCart(Cart *cart)
 {
@@ -343,7 +349,6 @@ void deleteShoppingCart(Cart *cart)
     }
 }
 
-
 void updateStockItem(AllItems *all, char *name, int newQuant, int newPrice)
 {
     if (!all || !all->head)
@@ -357,12 +362,12 @@ void updateStockItem(AllItems *all, char *name, int newQuant, int newPrice)
 
             tmp->available_quant = newQuant;
             tmp->price = newPrice;
-            // printf("%s(s) updated in stock\n", tmp->name);
+            printf("%s(s) updated in stock\n", tmp->name);
             return;
         }
         tmp = tmp->next;
     }
-    // printf("Item not found\n");
+    printf("Item not found\n");
 }
 
 AllItems *pay(AllItems *all, Cart *cart)
@@ -377,7 +382,8 @@ AllItems *pay(AllItems *all, Cart *cart)
         printf("    %s - %d * %f = %f\n", pickedItems->item->name, pickedItems->quantity, pickedItems->item->price, pickedItems->total);
         (void)stockLeft;
         updateStockItem(all, pickedItems->item->name, stockLeft, pickedItems->item->price);
-        if (stockLeft == 0) {
+        if (stockLeft == 0)
+        {
             removeItemFromStock(all, pickedItems->item->name);
         }
 
