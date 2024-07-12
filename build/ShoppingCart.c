@@ -14,6 +14,7 @@ typedef struct PickedItem
 {
     Item *item;
     int quantity;
+    char name[100];
     double total;
     struct PickedItem *next;
 } PickedItem;
@@ -31,6 +32,14 @@ typedef struct Cart
     size_t size;
     double total_price;
 } Cart;
+
+typedef struct User {
+    char name[100];
+    char email[100];
+    char password[100];
+    Cart *cart;
+} User;
+
 
 Cart *createCart();
 Item *createItem(char *name, int quant, double price);
@@ -109,6 +118,7 @@ AllItems *removeItemFromStock(AllItems *allItems, char *target)
                     allItems->tail = prev;
             }
             allItems->totalValue -= (tmp->price * tmp->available_quant);
+            free(tmp);
             break;
         }
         prev = tmp;
@@ -121,7 +131,8 @@ AllItems *removeItemFromStock(AllItems *allItems, char *target)
 Cart *removeItemFromCart(Cart *cart, char *target)
 {
     if (!target || !cart || !cart->head)
-        return cart;  // Return the cart unchanged if target is NULL or cart is empty
+        return NULL;
+
 
     PickedItem *tmp = cart->head;
     PickedItem *prev = NULL;
@@ -130,65 +141,20 @@ Cart *removeItemFromCart(Cart *cart, char *target)
     {
         if (strcmp(tmp->item->name, target) == 0)
         {
-            // Found the item to remove
             if (tmp == cart->head)
-            {
-                // If the item to remove is the head of the cart
                 cart->head = tmp->next;
-            }
             else
-            {
-                // If the item to remove is not the head
                 prev->next = tmp->next;
-            }
-
-            // Free the memory allocated for the picked item
             free(tmp);
-            break;  // Exit the loop after removal
+            tmp = prev->next;
+            break;
         }
-
         prev = tmp;
         tmp = tmp->next;
     }
 
     return cart;
 }
-
-
-// Cart *removeItemFromCart(Cart *cart, char *target)
-// {
-//     if (!target)
-//         return NULL;
-//     if (!cart || !cart->head)
-//         return NULL;
-
-//     PickedItem *tmp = cart->head;
-//     PickedItem *prev = NULL;
-
-//     while (tmp)
-//     {
-//         if (strcmp(tmp->item->name, target) == 0)
-//         {
-//             if (tmp == cart->head)
-//             {
-//                 cart->head = tmp->next;
-
-//             }
-//             else
-//             {
-//                 prev->next = tmp->next;
-
-//             }
-//             free(tmp);
-//             tmp = prev->next;
-//             break;
-//         }
-//         prev = tmp;
-//         tmp = tmp->next;
-//     }
-
-//     return cart;
-// }
 
 void clearStock(AllItems *items)
 {
@@ -292,6 +258,9 @@ PickedItem *getItemFromCart(Cart *cart, char *itemName)
 
     return NULL;
 }
+// PickedItem * createPickedItem() {
+
+// }
 
 Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
 {
@@ -320,6 +289,7 @@ Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
         cartItem = (PickedItem *)malloc(sizeof(PickedItem));
         if (!cartItem) return NULL;
 
+        strcpy(cartItem->name, item->name);
         cartItem->item = item;
         cartItem->quantity = quantity;
         cartItem->total = quantity * item->price;
@@ -330,6 +300,8 @@ Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
     }
     else
     {
+        strcpy(cartItem->name, item->name);
+        cartItem->item = item;
         cartItem->quantity = quantity;
         cartItem->total = quantity * item->price;
     }
@@ -358,7 +330,7 @@ void deleteShoppingCart(Cart *cart)
         while (current)
         {
             PickedItem *next = current->next;
-            printf("Deleting picked item: %s\n", current->item->name);
+            printf("Deleting picked item: %s\n", current->name);
             free(current);
             current = next;
         }
@@ -385,12 +357,12 @@ void updateStockItem(AllItems *all, char *name, int newQuant, int newPrice)
 
             tmp->available_quant = newQuant;
             tmp->price = newPrice;
-            printf("%s(s) updated in stock\n", tmp->name);
+            // printf("%s(s) updated in stock\n", tmp->name);
             return;
         }
         tmp = tmp->next;
     }
-    printf("Item not found\n");
+    // printf("Item not found\n");
 }
 
 AllItems *pay(AllItems *all, Cart *cart)
@@ -398,7 +370,7 @@ AllItems *pay(AllItems *all, Cart *cart)
     PickedItem *pickedItems = cart->head;
     double total = cart->total_price;
 
-    printf("Generating receipt\n");
+    printf("\nGenerating receipt\n");
     while (pickedItems)
     {
         int stockLeft = pickedItems->item->available_quant - pickedItems->quantity;
@@ -406,14 +378,12 @@ AllItems *pay(AllItems *all, Cart *cart)
         (void)stockLeft;
         updateStockItem(all, pickedItems->item->name, stockLeft, pickedItems->item->price);
         if (stockLeft == 0) {
-            listStock(all);
-            char *name = pickedItems->item->name;
-            removeItemFromStock(all, name);
+            removeItemFromStock(all, pickedItems->item->name);
         }
 
         pickedItems = pickedItems->next;
     }
-    printf("Total Price = %f\nThanks for shopping with us!\n", total);
+    printf("Total Price = %f\nThanks for shopping with us!\n\n", total);
     return all;
 }
 
@@ -433,6 +403,7 @@ int main(void)
     listCartItems(cart);
     pay(allItems, cart);
     // printf("\n\n");
+
     deleteShoppingCart(cart);
     listStock(allItems);
     clearStock(allItems);
