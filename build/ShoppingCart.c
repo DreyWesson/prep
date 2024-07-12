@@ -35,11 +35,17 @@ typedef struct Cart
 
 typedef struct User
 {
-    char name[100];
     char email[100];
     char password[100];
     Cart *cart;
+    struct User *next;
 } User;
+
+typedef struct UserList {
+    User *head;
+    User *tail;
+    int size;
+} UserList;
 
 Cart *createCart();
 Item *createItem(char *name, int quant, double price);
@@ -393,6 +399,77 @@ AllItems *pay(AllItems *all, Cart *cart)
     return all;
 }
 
+User *createUser() {
+    User *user = (User *)malloc(sizeof(User));
+    if (!user) return NULL;
+
+    printf("Please, enter your email\n");
+    while (1)
+    {
+        scanf("%s", user->email);
+        if (strlen(user->email) > 0)
+            break;
+        else
+            printf("Email can't be empty. Please enter your email\n");
+    }
+    
+    printf("Please, enter your password\n");
+    while (1)
+    {
+        scanf("%s", user->password);
+        if (strlen(user->password) > 0)
+            break;
+        else
+            printf("Password can't be empty. Please enter your password\n");
+    }
+    user->cart = createCart();
+    user->next = NULL;
+    return user;
+}
+
+UserList *createUserList() {
+    UserList *users = (UserList *)malloc(sizeof(UserList));
+    if (!users) return NULL;
+
+    users->head = users->tail = 0;
+    users->size = 0;
+
+    return users;
+}
+
+User * addUser(UserList *userList) {
+    if (!userList) {
+        userList = createUserList();
+        if (!userList) return NULL;
+    }
+    User *user = createUser();
+    if (!user) return NULL;
+
+    if (!userList->head) {
+        userList->head = userList->tail = user;
+    } else {
+        user->next = userList->head;
+        userList->head = user;
+    }
+    userList->size++;
+    return user;
+}
+
+void printUsers(UserList *list) {
+    if (!list) return ;
+
+    User *tmp = list->head;
+    printf("\n");
+    while (tmp)
+    {
+        printf("email: %s\npassword: %s\n", tmp->email, tmp->password);
+        listCartItems(tmp->cart);
+        
+        tmp = tmp->next;
+    }
+    printf("\n");
+}
+
 int main(void)
 {
     AllItems *allItems = createStock();
@@ -401,17 +478,21 @@ int main(void)
     addItemToStock(allItems, createItem("Cashew", 3, 2.99));
     addItemToStock(allItems, createItem("Grape", 5, 1.50));
     addItemToStock(allItems, createItem("Orange", 31, 0.50));
+    UserList *allUsers = createUserList();
+    User *one = addUser(allUsers);
+    User *two = addUser(allUsers);
+    (void)one;
+    (void)two;
 
-    Cart *cart = createCart();
-    (void)cart;
-    addItemToCart(allItems, cart, "Orange", 20);
-    addItemToCart(allItems, cart, "Grape", 5);
-    listCartItems(cart);
-    pay(allItems, cart);
+    addItemToCart(allItems, one->cart, "Orange", 20);
+    addItemToCart(allItems, one->cart, "Grape", 5);
+    printUsers(allUsers);
+    // listCartItems(cart);
+    // pay(allItems, cart);
     // printf("\n\n");
 
-    deleteShoppingCart(cart);
-    listStock(allItems);
+    // deleteShoppingCart(cart);
+    // listStock(allItems);
     clearStock(allItems);
     return 0;
 }
