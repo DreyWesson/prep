@@ -55,12 +55,12 @@ void clearStock(AllItems *items);
 AllItems *removeItemFromStock(AllItems *allItems, char *target);
 AllItems *addItemToStock(AllItems *allItems, Item *item);
 AllItems *createStock();
-Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity);
+Cart *addItemToCart(AllItems *all, User *user, char *itemName, int quantity);
 PickedItem *getItemFromCart(Cart *cart, char *itemName);
 Item *getItemFromStock(AllItems *all, char *itemName);
 void updateStockItem(AllItems *all, char *name, int newQuant, int newPrice);
 void listCartItems(Cart *cart);
-AllItems *pay(AllItems *all, Cart *cart);
+AllItems *pay(AllItems *all, User *user);
 
 AllItems *createStock()
 {
@@ -287,8 +287,10 @@ void updatePickedItem(PickedItem *cartItem, int newQuant, double newPrice)
     }
 }
 
-Cart *addItemToCart(AllItems *all, Cart *cart, char *itemName, int quantity)
+Cart *addItemToCart(AllItems *all, User *user, char *itemName, int quantity)
 {
+    if (!user) return  NULL;
+    Cart *cart = user->cart;
     if (!all || !all->head || quantity <= 0 || !itemName)
         return NULL;
 
@@ -376,8 +378,41 @@ void updateStockItem(AllItems *all, char *name, int newQuant, int newPrice)
     printf("Item not found\n");
 }
 
-AllItems *pay(AllItems *all, Cart *cart)
+int confirmUser(User *user) {
+    char email[100];
+    char password[100];
+    printf("We need to authenticate.\nPlease enter your email\n");
+    while (1)
+    {
+        scanf("%s", email);
+        if (strlen(email) > 0)
+            break;
+        else
+            printf("Email can't be empty. Please enter your email\n");
+    }
+    
+    printf("Please, enter your password\n");
+    while (1)
+    {
+        scanf("%s", password);
+        if (strlen(password) > 0)
+            break;
+        else
+            printf("Password can't be empty. Please enter your password\n");
+    }
+    if (!strcmp(user->email, email) && !strcmp(user->password, password)) {
+        return (printf("User authenticated!\n"), 1);
+    }
+
+    return 0;
+}
+
+AllItems *pay(AllItems *all, User *user)
 {
+    if (!user) return NULL;
+    if (confirmUser(user) == 0)
+        return (printf("Wrong email or password\n"), all);
+    Cart *cart = user->cart;
     PickedItem *pickedItems = cart->head;
     double total = cart->total_price;
 
@@ -427,6 +462,7 @@ User *createUser() {
     return user;
 }
 
+
 UserList *createUserList() {
     UserList *users = (UserList *)malloc(sizeof(UserList));
     if (!users) return NULL;
@@ -463,11 +499,28 @@ void printUsers(UserList *list) {
     while (tmp)
     {
         printf("email: %s\npassword: %s\n", tmp->email, tmp->password);
+        printf("Cart Items:\n");
         listCartItems(tmp->cart);
-        
+        printf("\n");
         tmp = tmp->next;
     }
     printf("\n");
+}
+
+void deleteAllUsers(UserList *users) {
+    if (users) {
+        User *tmp = users->head;
+        if (tmp) {
+            while (tmp)
+            {
+                User *cache = tmp->next;
+                deleteShoppingCart(tmp->cart);
+                free(tmp);
+                tmp = cache;
+            }
+        }
+        free(users);
+    }
 }
 
 int main(void)
@@ -484,15 +537,18 @@ int main(void)
     (void)one;
     (void)two;
 
-    addItemToCart(allItems, one->cart, "Orange", 20);
-    addItemToCart(allItems, one->cart, "Grape", 5);
+    addItemToCart(allItems, one, "Orange", 20);
+    addItemToCart(allItems, one, "Grape", 5);
     printUsers(allUsers);
-    // listCartItems(cart);
-    // pay(allItems, cart);
-    // printf("\n\n");
 
-    // deleteShoppingCart(cart);
-    // listStock(allItems);
+    pay(allItems, one);
+    printf("\n\n");
+    addItemToCart(allItems, two, "Grape", 5);
+    printf("\n\n");
+
+    listStock(allItems);
+
+    deleteAllUsers(allUsers);
     clearStock(allItems);
     return 0;
 }
