@@ -1,9 +1,23 @@
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 using namespace std;
+
+string toLower(string &str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
+                   { return tolower(c); });
+    return str;
+}
+
 class Items;
 class Stock;
+class PickedItems;
+class ShoppingCart;
 ostream &operator<<(ostream &cout_, const Stock &src);
 ostream &operator<<(ostream &cout_, const Items &src);
+ostream &operator<<(ostream &cout_, const PickedItems &src);
+ostream &operator<<(ostream &cout_, const ShoppingCart &src);
 
 class Items
 {
@@ -15,12 +29,38 @@ public:
 
     Items(const string &name_, int quantity_, double price_)
         : name(name_), quantity(quantity_), price(price_), next(nullptr) {}
-    ~Items() {}
+
+    ~Items()
+    {
+        delete next;
+    }
+
+    Items(const Items &cpy)
+        : name(cpy.name), quantity(cpy.quantity), price(cpy.price), next(nullptr)
+    {
+        if (cpy.next)
+            next = new Items(*cpy.next);
+    }
+
+    Items &operator=(const Items &cpy)
+    {
+        if (this == &cpy)
+            return *this;
+
+        delete next;
+        next = nullptr;
+
+        name = cpy.name;
+        quantity = cpy.quantity;
+        price = cpy.price;
+
+        if (cpy.next)
+        {
+            next = new Items(*cpy.next);
+        }
+        return *this;
+    }
 };
-ostream &operator<<(ostream &cout_, const Items &src) {
-    cout << src.name << " | " << src.quantity << " | " << src.price << " = " << src.quantity * src.price << endl;
-    return cout_;
-}
 
 class Stock
 {
@@ -29,9 +69,8 @@ public:
     Items *tail;
     size_t size;
 
-    Stock() : head(nullptr), tail(nullptr), size(0)
-    {
-    }
+    Stock() : head(nullptr), tail(nullptr), size(0) {}
+
     void addItemToStock(const string &name_, int quantity_, double price_)
     {
         Items *newItem = new Items(name_, quantity_, price_);
@@ -47,9 +86,22 @@ public:
         size++;
     }
 
-    Stock(const Stock &cpy)
+    Stock(const Stock &cpy) : head(nullptr), tail(nullptr), size(0)
     {
         *this = cpy;
+    }
+
+    Items *getItem(string target)
+    {
+        if (target.empty() || !head)
+            return nullptr;
+        Items *tmp = head;
+
+        while (tmp && toLower(tmp->name) != toLower(target))
+        {
+            tmp = tmp->next;
+        }
+        return (tmp);
     }
 
     Stock &operator=(const Stock &cpy)
@@ -57,14 +109,19 @@ public:
         if (this != &cpy)
         {
             clearItems();
-            copyItems(cpy);
+            if (cpy.head)
+            {
+                head = new Items(*cpy.head);
+                Items *tmp = head;
+                while (tmp->next)
+                {
+                    tmp = tmp->next;
+                }
+                tail = tmp;
+                size = cpy.size;
+            }
         }
         return *this;
-    }
-
-    void printStockItems()
-    {
-        cout << *this << endl;
     }
 
     ~Stock()
@@ -74,46 +131,20 @@ public:
 
     void clearItems()
     {
-        if (!head)
-            return;
-        Items *tmp = head;
-        Items *cache = NULL;
-        while (tmp)
-        {
-            cache = tmp;
-            tmp = tmp->next;
-            delete cache;
-        }
+        delete head;
         head = tail = nullptr;
         size = 0;
     }
-    
-    void copyItems(const Stock &cpy)
+
+    void printStockItems()
     {
-        if (!cpy.head)
+        cout << *this << endl;
+    }
+
+    void removeOneFromStock(const string &itemName)
+    {
+        if (!head)
             return;
-
-        Items *incoming = cpy.head;
-        head = new Items(incoming->name, incoming->quantity, incoming->price);
-        incoming = incoming->next;
-        Items *tmp = head;
-        while (incoming)
-        {
-            tmp->next = new Items(incoming->name, incoming->quantity, incoming->price);
-            tmp = tmp->next;
-            incoming = incoming->next;
-        }
-        size = cpy.size;
-        tail = tmp;
-    }
-
-
-    void updateStock(){
-        
-    }
-
-    void removeOneFromStock(const string &itemName){
-        if (!head) return ;
         Items *tmp = head;
         Items *prev = nullptr;
         while (tmp && tmp->name != itemName)
@@ -121,32 +152,173 @@ public:
             prev = tmp;
             tmp = tmp->next;
         }
-        if (tmp) {
-            if (tmp == head) {
+        if (tmp)
+        {
+            if (tmp == head)
+            {
                 head = head->next;
                 if (!head)
                     tail = nullptr;
-            } else {
+            }
+            else
+            {
                 prev->next = tmp->next;
-                if (!prev->next) {
+                if (!prev->next)
+                {
                     tail = prev;
                 }
             }
+            tmp->next = nullptr;
             delete tmp;
             size--;
         }
-
     }
 };
 
-ostream &operator<<(ostream &cout_, const Stock &src) {
-        Items *tmp = src.head;
-        while (tmp)
+class PickedItems
+{
+public:
+    Items *stockItem;
+    string itemName;
+    int quantity;
+    double totalPrice;
+    PickedItems *next;
+    PickedItems(Items *stockItem_, int quantity_) : stockItem(stockItem_), quantity(quantity_)
+    {
+        itemName = stockItem->name;
+        totalPrice = quantity * stockItem->price;
+        next = nullptr;
+    }
+
+    PickedItems(const PickedItems &src) : stockItem(src.stockItem), itemName(src.itemName), quantity(src.quantity), totalPrice(src.totalPrice), next(nullptr)
+    {
+        if (src.next)
+            next = new PickedItems(*src.next);
+    }
+
+    PickedItems &operator=(const PickedItems &src)
+    {
+        if (this != &src)
         {
-            cout << *tmp;
-            tmp = tmp->next;
+            delete next;
+            next = nullptr;
+
+            stockItem = src.stockItem;
+            itemName = src.itemName;
+            quantity = src.quantity;
+            totalPrice = src.totalPrice;
+            if (src.next)
+            {
+                next = new PickedItems(*src.next);
+            }
         }
-        return (cout_);
+
+        return *this;
+    }
+
+    ~PickedItems()
+    {
+        delete next;
+    }
+};
+
+class ShoppingCart
+{
+public:
+    PickedItems *head;
+    PickedItems *tail;
+    int size;
+    double totalPrice;
+
+    ShoppingCart() : head(nullptr), tail(nullptr), size(0), totalPrice(0.00)
+    {
+    }
+
+    ShoppingCart(const ShoppingCart &src)
+    {
+        *this = src;
+    }
+
+    ShoppingCart &operator=(const ShoppingCart &src)
+    {
+        if (this != &src)
+        {
+            head = new PickedItems(*src.head);
+            PickedItems *tmp = head;
+            while (tmp->next)
+            {
+                tmp = tmp->next;
+            }
+            tail = tmp;
+            size = src.size;
+            totalPrice = src.totalPrice;
+        }
+        return *this;
+    }
+
+    void addToCart(Stock &stock, const string name, int quantity)
+    {
+        if (name.empty() || quantity <= 0)
+            return;
+
+        Items *targetItem = stock.getItem(name);
+
+        PickedItems picked(targetItem, quantity);
+        cout << picked;
+
+        (void)quantity;
+        (void)targetItem;
+    }
+
+    void clearShoppingCart()
+    {
+        delete head;
+        head = tail = nullptr;
+        size = 0;
+        totalPrice = 0.00;
+    }
+
+    ~ShoppingCart()
+    {
+        clearShoppingCart();
+    }
+};
+
+ostream &operator<<(ostream &cout_, const PickedItems &src)
+{
+
+    cout << "Item-Name: " << src.stockItem->name
+         << "\nQuantity: " << src.quantity << "\nSum: " << src.totalPrice << endl
+         << endl;
+    return cout_;
+}
+
+ostream &operator<<(ostream &cout_, const ShoppingCart &src)
+{
+    PickedItems *tmp = src.head;
+    while (tmp)
+    {
+        cout << *tmp;
+        tmp = tmp->next;
+    }
+    return (cout_);
+};
+
+ostream &operator<<(ostream &cout_, const Items &src)
+{
+    cout << src.name << " | " << src.quantity << " | " << src.price << " = " << src.quantity * src.price << endl;
+    return cout_;
+}
+
+ostream &operator<<(ostream &cout_, const Stock &src)
+{
+    Items *tmp = src.head;
+    while (tmp)
+    {
+        cout << *tmp;
+        tmp = tmp->next;
+    }
+    return (cout_);
 };
 
 int main(void)
@@ -156,25 +328,18 @@ int main(void)
     cout << endl;
 
     Stock *stock = new Stock();
-    // Stock *stock2 = new Stock();
     stock->addItemToStock("Apple", 31, 0.99);
     stock->addItemToStock("Banana", 51, 0.59);
     stock->addItemToStock("Cashew", 20, 2.99);
     stock->addItemToStock("Grape", 10, 0.99);
     stock->removeOneFromStock("Grape");
 
-    // *stock2 = *stock;
-
-    cout << *stock;
-    // stock2->printStockItems();
-
+    ShoppingCart *newCart = new ShoppingCart();
+    newCart->addToCart(*stock, "Cashew", 10);
 
     stock->clearItems();
-    // stock2->clearItems();
     delete stock;
-    // delete stock2;
-    (void)stock;
-
+    delete newCart;
     cout << endl;
     cout << endl;
     cout << endl;
