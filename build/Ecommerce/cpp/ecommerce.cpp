@@ -270,33 +270,40 @@ public:
         return tmp;
     }
 
-    void removeFromCart(string name) {
-    PickedItems *tmp = head;
-    PickedItems *prev = nullptr;
-    
-    while (tmp) {
-        if (toLower(tmp->itemName) == toLower(name)) {
-            if (!prev) {
-                head = head->next;
-            } else {
-                prev->next = tmp->next;
-            }
-            size--;
-            totalPrice -= tmp->totalPrice;
-            
-            PickedItems *toDelete = tmp;
-            tmp = tmp->next;
-            toDelete->next = nullptr;
-            delete toDelete;
+    void removeFromCart(string name)
+    {
+        PickedItems *tmp = head;
+        PickedItems *prev = nullptr;
 
-            break;
-        } else {
-            prev = tmp;
-            tmp = tmp->next;
+        while (tmp)
+        {
+            if (toLower(tmp->itemName) == toLower(name))
+            {
+                if (!prev)
+                {
+                    head = head->next;
+                }
+                else
+                {
+                    prev->next = tmp->next;
+                }
+                size--;
+                totalPrice -= tmp->totalPrice;
+
+                PickedItems *toDelete = tmp;
+                tmp = tmp->next;
+                toDelete->next = nullptr;
+                delete toDelete;
+
+                break;
+            }
+            else
+            {
+                prev = tmp;
+                tmp = tmp->next;
+            }
         }
     }
-}
-
 
     void addToCart(Stock &stock, string name, int quantity)
     {
@@ -355,7 +362,8 @@ public:
     }
 };
 
-class User {
+class User
+{
 public:
     string name;
     string password;
@@ -365,44 +373,111 @@ public:
 
     User(const string &name_, const string &password_, const double wallet_) : name(name_), password(password_), wallet(wallet_), next(nullptr) {}
 
-    User(const User &src) : name(src.name), password(src.password), wallet(src.wallet), cart(src.cart) {
-        if (src.next) {
+    User(const User &src) : name(src.name), password(src.password), wallet(src.wallet), cart(src.cart)
+    {
+        if (src.next)
+        {
             next = new User(*src.next);
         }
     }
 
-    User &operator=(const User &src) {
-        if (this != &src) {
+    User &operator=(const User &src)
+    {
+        if (this != &src)
+        {
             delete next;
             next = nullptr;
-            cart = (src.cart) ? new ShoppingCart(*src.cart): nullptr;
+            cart = (src.cart) ? new ShoppingCart(*src.cart) : nullptr;
             next = (src.next) ? new User(*src.next) : nullptr;
         }
         return *this;
     }
 
-    // void addToShoppingCart(const Stock &stock, ShoppingCart &cart) {
+    PickedItems *inCart(string &name)
+    {
+        PickedItems *tmp = cart->head;
 
-    // }
-    ~User() {
+        (void)name;
+        while (tmp && toLower(tmp->itemName) != toLower(name))
+            tmp = tmp->next;
+
+        return tmp;
+    }
+
+    void addToCart(Stock &stock, string name, int quantity)
+    {
+        if (name.empty() || quantity <= 0)
+            return;
+
+        PickedItems *cartItem = inCart(name);
+        if (cartItem)
+        {
+            cartItem->quantity += quantity;
+            cartItem->totalPrice += quantity * cartItem->stockItem->price;
+        }
+        else
+        {
+            Items *targetItem = stock.getItem(name);
+
+            if (!targetItem)
+            {
+                cout << "No " << name << " in stock" << endl;
+                return;
+            }
+
+            if (quantity > targetItem->quantity)
+            {
+                cout << "Sorry, only " << targetItem->quantity << " " << name << " left in stock" << endl;
+                return;
+            }
+
+            PickedItems *picked = new PickedItems(targetItem, quantity);
+
+            if (!cart->head)
+            {
+                cart->head = cart->tail = picked;
+            }
+            else
+            {
+                picked->next = cart->head;
+                cart->head = picked;
+            }
+            cart->size++;
+            cart->totalPrice += (quantity * picked->stockItem->price);
+        }
+    }
+    void pay(Stock &stock) {
+        if (wallet < cart->totalPrice) {
+            cout << "Insufficent funds" << endl;
+            return;
+        }
+
+    }
+
+    ~User()
+    {
         delete cart;
         delete next;
     }
 };
 
-class UserList {
+class UserList
+{
 public:
     User *head;
     User *tail;
     int size;
     UserList() : head(nullptr), tail(nullptr), size(0) {}
 
-    UserList(const UserList &src)  {
+    UserList(const UserList &src)
+    {
         *this = src;
     }
 
-    UserList &operator=(const UserList &src) {
-        if (this != &src) {
+    UserList &operator=(const UserList &src)
+    {
+        if (this != &src)
+        {
             head = new User(*src.head);
             User *tmp = head;
             while (tmp->next)
@@ -415,30 +490,34 @@ public:
         return *this;
     }
 
-
-    ~UserList() {
+    ~UserList()
+    {
         clearUserList();
     }
-    void clearUserList() {
+    void clearUserList()
+    {
         delete head;
         head = tail = nullptr;
         size = 0;
     }
 
-    void addUser(const string &name_, const string &password_, const double wallet_) {
+    User *addUser(const string &name_, const string &password_, const double wallet_)
+    {
         User *newUser = new User(name_, password_, wallet_);
         newUser->cart = new ShoppingCart();
 
-        if (!head) {
+        if (!head)
+        {
             head = tail = newUser;
-        } else {
+        }
+        else
+        {
             newUser->next = head;
             head = newUser;
         }
         size++;
+        return newUser;
     }
-
-
 };
 
 ostream &operator<<(ostream &cout_, const User &src)
@@ -513,21 +592,28 @@ int main(void)
     stock->addItemToStock("Grape", 10, 0.99);
     stock->removeOneFromStock("Grape");
 
-    ShoppingCart *newCart = new ShoppingCart();
-    newCart->addToCart(*stock, "Cashew", 11);
-    newCart->addToCart(*stock, "Apple", 5);
-    newCart->addToCart(*stock, "Apple", 5);
-
 
     UserList *users = new UserList();
-    users->addUser("Dare", "secret", 50.19);
-    users->addUser("Wesson", "cret", 32.49);
-    users->addUser("john", "ecret", 10.19);
+    User *one = users->addUser("Dare", "secret", 50.19);
+    User *two = users->addUser("Wesson", "cret", 32.49);
+    User *three = users->addUser("john", "ecret", 10.19);
 
     // cout << *users;
-
+    (void)one;
+    (void)two;
+    (void)three;
+    one->addToCart(*stock, "Apple", 8);
+    one->addToCart(*stock, "Apple", 8);
+    one->addToCart(*stock, "Cashew", 12);
+    two->addToCart(*stock, "Banana", 8);
+    two->addToCart(*stock, "Apple", 8);
+    two->addToCart(*stock, "Cashew", 12);
+    cout << *(one->cart) ;
+    cout << endl;
+    cout << endl;
+    cout << *(one->cart) ;
     delete stock;
-    delete newCart;
+    // delete newCart;
     delete users;
     // delete newCart2;
 
