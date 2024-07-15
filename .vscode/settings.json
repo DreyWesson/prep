@@ -61,6 +61,7 @@
     "*.ejs": "html",
     "functional": "c",
     "typeinfo": "c",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "ostream": "cpp"
   }
 }
