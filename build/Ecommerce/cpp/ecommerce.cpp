@@ -59,9 +59,7 @@ public:
         price = cpy.price;
 
         if (cpy.next)
-        {
             next = new Items(*cpy.next);
-        }
         return *this;
     }
 };
@@ -145,35 +143,32 @@ public:
         cout << *this << endl;
     }
 
-    void removeOneFromStock(const string &itemName)
+    void removeOneFromStock(string itemName)
     {
-        if (!head)
-            return;
+        if (!head) return ;
         Items *tmp = head;
         Items *prev = nullptr;
-        while (tmp && tmp->name != itemName)
+
+        while (tmp && toLower(tmp->name) != toLower(itemName))
         {
             prev = tmp;
             tmp = tmp->next;
         }
-        if (tmp)
-        {
-            if (tmp == head)
-            {
-                head = head->next;
-                if (!head)
-                    tail = nullptr;
-            }
-            else
-            {
-                prev->next = tmp->next;
-                if (!prev->next)
-                    tail = prev;
-            }
-            tmp->next = nullptr;
-            delete tmp;
-            size--;
-        }
+
+        if (!tmp) return;
+        
+        if (tmp == head)
+            head = tmp->next;
+        else
+            prev->next = tmp->next;
+
+        if (tmp == tail)
+            tail = prev;
+
+        size--;
+
+        tmp->next = nullptr;
+        delete tmp;
     }
 };
 
@@ -272,37 +267,32 @@ public:
 
     void removeFromCart(string name)
     {
+        if (!head) return;
         PickedItems *tmp = head;
         PickedItems *prev = nullptr;
 
-        while (tmp)
+        while (tmp && toLower(tmp->itemName) == toLower(name))
         {
-            if (toLower(tmp->itemName) == toLower(name))
-            {
-                if (!prev)
-                {
-                    head = head->next;
-                }
-                else
-                {
-                    prev->next = tmp->next;
-                }
-                size--;
-                totalPrice -= tmp->totalPrice;
-
-                PickedItems *toDelete = tmp;
-                tmp = tmp->next;
-                toDelete->next = nullptr;
-                delete toDelete;
-
-                break;
-            }
-            else
-            {
-                prev = tmp;
-                tmp = tmp->next;
-            }
+            prev = tmp;
+            tmp = tmp->next;
         }
+
+        if (!tmp) return;
+
+        if (tmp == head) {
+            head = tmp->next;
+        } else {
+            prev->next = tmp->next;
+        }
+
+        if (tmp == tail) 
+            tail = tmp;
+        
+        size--;
+        totalPrice -= (tmp->quantity * tmp->stockItem->price);
+
+        tmp->next = nullptr;
+        delete tmp;        
     }
 
     void addToCart(Stock &stock, string name, int quantity)
@@ -446,12 +436,80 @@ public:
             cart->totalPrice += (quantity * picked->stockItem->price);
         }
     }
-    void pay(Stock &stock) {
-        if (wallet < cart->totalPrice) {
-            cout << "Insufficent funds" << endl;
+
+    void pay(Stock &stock)
+    {
+        if (wallet < cart->totalPrice)
+        {
+            cout << "Insufficient funds" << endl;
             return;
         }
 
+        PickedItems *tmp = cart->head;
+
+        while (tmp)
+        {
+            Items *stockItem = stock.getItem(tmp->stockItem->name);
+
+            if (!stockItem)
+            {
+                cout << "We are out of stock for " << tmp->stockItem->name << endl;
+                tmp = tmp->next;
+                continue;
+            }
+
+            if (stockItem->quantity >= tmp->quantity)
+            {
+                stockItem->quantity -= tmp->quantity;
+                wallet -= tmp->totalPrice;
+
+                string itemName = tmp->itemName;
+                tmp = tmp->next;
+                removeOnePickedItem(itemName);
+
+                if (stockItem->quantity == 0)
+                {
+                    stock.removeOneFromStock(stockItem->name);
+                }
+            }
+            else
+            {
+                cout << "Sorry, only " << stockItem->quantity << " of " << stockItem->name << " left in stock" << endl;
+                tmp = tmp->next;
+            }
+        }
+    }
+
+    void removeOnePickedItem(string &itemName)
+    {
+        if (!cart->head)
+            return;
+
+        PickedItems *tmp = cart->head;
+        PickedItems *prev = nullptr;
+
+        while (tmp && toLower(tmp->itemName) != toLower(itemName))
+        {
+            prev = tmp;
+            tmp = tmp->next;
+        }
+
+        if (!tmp)
+            return;
+
+        if (tmp == cart->head)
+            cart->head = tmp->next;
+        else
+            prev->next = tmp->next;
+
+        if (tmp == cart->tail)
+            cart->tail = prev;
+
+        cart->size--;
+        cart->totalPrice -= (tmp->quantity * tmp->stockItem->price);
+
+        tmp->next = nullptr;
+        delete tmp;
     }
 
     ~User()
@@ -517,6 +575,31 @@ public:
         }
         size++;
         return newUser;
+    }
+
+    void removeOneUser(string userName) {
+        if (!head) return;
+
+        User *tmp = head;
+        User *prev = nullptr;
+
+        while (tmp && toLower(tmp->name) != toLower(userName))
+        {
+            prev = tmp;
+            tmp = tmp->next;
+        }
+        if (!tmp) return;
+
+        if (tmp == head)
+            head = tmp->next;
+        else
+            prev->next = tmp->next;
+        
+        if (tmp == tail)
+            tail = prev;
+
+        tmp->next = nullptr;
+        delete tmp;
     }
 };
 
@@ -590,28 +673,24 @@ int main(void)
     stock->addItemToStock("Banana", 51, 0.59);
     stock->addItemToStock("Cashew", 20, 2.99);
     stock->addItemToStock("Grape", 10, 0.99);
-    stock->removeOneFromStock("Grape");
-
 
     UserList *users = new UserList();
-    User *one = users->addUser("Dare", "secret", 50.19);
-    User *two = users->addUser("Wesson", "cret", 32.49);
-    User *three = users->addUser("john", "ecret", 10.19);
+    User *one = users->addUser("Dare", "secret", 100.19);
 
-    // cout << *users;
     (void)one;
-    (void)two;
-    (void)three;
+
     one->addToCart(*stock, "Apple", 8);
     one->addToCart(*stock, "Apple", 8);
-    one->addToCart(*stock, "Cashew", 12);
-    two->addToCart(*stock, "Banana", 8);
-    two->addToCart(*stock, "Apple", 8);
-    two->addToCart(*stock, "Cashew", 12);
-    cout << *(one->cart) ;
-    cout << endl;
-    cout << endl;
-    cout << *(one->cart) ;
+    one->addToCart(*stock, "Cashew", 20);
+
+    one->pay(*stock);
+    cout << *(one->cart);
+    // one->removeOnePickedItem("Applesadfsf");
+    cout << "***" << endl;
+    cout << "***" << endl;
+    cout << *(one->cart);
+    cout << *stock;
+    // cout << *one;
     delete stock;
     // delete newCart;
     delete users;

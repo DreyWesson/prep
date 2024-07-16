@@ -62,6 +62,7 @@
     "functional": "c",
     "typeinfo": "c",
     "iosfwd": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "iostream": "cpp"
   }
 }
