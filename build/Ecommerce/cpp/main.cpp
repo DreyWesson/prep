@@ -29,16 +29,11 @@ int main(void)
 
     one->pay(*stock);
     std::cout << *(one->cart);
-    // one->removeOnePickedItem("Applesadfsf");
-    std::cout << "***" << std::endl;
-    std::cout << "***" << std::endl;
-    std::cout << *(one->cart);
+
     std::cout << *stock;
-    // cout << *one;
+
     delete stock;
-    // delete newCart;
     delete users;
-    // delete newCart2;
 
     std::cout << std::endl;
     std::cout << std::endl;

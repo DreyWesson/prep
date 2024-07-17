@@ -4,8 +4,6 @@
 #include "All.hpp"
 #include "Item.hpp"
 
-// class Items;
-
 class Stock
 {
 public:
@@ -14,21 +12,14 @@ public:
     size_t size;
 
     Stock();
-
-    void addItemToStock(const std::string &name_, int quantity_, double price_);
-
     Stock(const Stock &cpy);
-
-    Items *getItem(std::string target);
-
     Stock &operator=(const Stock &cpy);
-
     ~Stock();
 
+    void addItemToStock(const std::string &name_, int quantity_, double price_);
+    Items *getItem(std::string target);
     void clearItems();
-
     void printStockItems();
-
     void removeOneFromStock(std::string itemName);
 };
 

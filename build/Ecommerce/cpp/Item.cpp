@@ -11,8 +11,7 @@ Items::~Items()
 Items::Items(const Items &cpy)
     : name(cpy.name), quantity(cpy.quantity), price(cpy.price), next(nullptr)
 {
-    if (cpy.next)
-        next = new Items(*cpy.next);
+    next = (cpy.next) ? new Items(*cpy.next) : nullptr;
 }
 
 Items &Items::operator=(const Items &cpy)

@@ -3,6 +3,7 @@
 
 #include "All.hpp"
 #include "Item.hpp"
+#include "Stock.hpp"
 
 class PickedItems
 {
@@ -15,9 +16,7 @@ public:
 
     PickedItems(Items *stockItem_, int quantity_);
     PickedItems(const PickedItems &src);
-
     PickedItems &operator=(const PickedItems &src);
-
     ~PickedItems();
 };
 

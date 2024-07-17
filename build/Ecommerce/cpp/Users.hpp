@@ -15,20 +15,14 @@ public:
     User *next;
 
     User(const std::string &name_, const std::string &password_, const double wallet_);
-
     User(const User &src);
-
     User &operator=(const User &src);
-
-    PickedItems *inCart(std::string &name);
-
-    void addToCart(Stock &stock, std::string name, int quantity);
-
-    void pay(Stock &stock);
-
-    void removeOnePickedItem(std::string &itemName);
-
     ~User();
+    
+    PickedItems *inCart(std::string &name);
+    void addToCart(Stock &stock, std::string name, int quantity);
+    void pay(Stock &stock);
+    void removeOnePickedItem(std::string &itemName);
 };
 
 std::ostream &operator<<(std::ostream &cout_, const User &src);

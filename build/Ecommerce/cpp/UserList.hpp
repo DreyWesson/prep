@@ -10,17 +10,14 @@ public:
     User *head;
     User *tail;
     int size;
+    
     UserList();
-
     UserList(const UserList &src);
-
     UserList &operator=(const UserList &src);
-
     ~UserList();
+
     void clearUserList();
-
     User *addUser(const std::string &name_, const std::string &password_, const double wallet_);
-
     void removeOneUser(std::string userName);
 };
 

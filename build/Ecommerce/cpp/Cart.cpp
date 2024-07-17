@@ -4,9 +4,16 @@ ShoppingCart::ShoppingCart() : head(nullptr), tail(nullptr), size(0), totalPrice
 {
 }
 
-ShoppingCart::ShoppingCart(const ShoppingCart &src)
+ShoppingCart::ShoppingCart(const ShoppingCart &src) : head(nullptr), tail(nullptr), size(0), totalPrice(0.00)
 {
-    *this = src;
+    // *this = src;
+    PickedItems *srcItems = src.head;
+    while (srcItems)
+    {
+        addToCart(srcItems->itemName, srcItems->quantity);
+        srcItems = srcItems->next;
+    }
+    
 }
 
 ShoppingCart &ShoppingCart::operator=(const ShoppingCart &src)
@@ -72,7 +79,7 @@ void ShoppingCart::removeFromCart(std::string name)
     delete tmp;
 }
 
-void ShoppingCart::addToCart(Stock &stock, std::string name, int quantity)
+void ShoppingCart::addToCart(std::string name, int quantity)
 {
     if (name.empty() || quantity <= 0)
         return;
@@ -85,7 +92,7 @@ void ShoppingCart::addToCart(Stock &stock, std::string name, int quantity)
     }
     else
     {
-        Items *targetItem = stock.getItem(name);
+        Items *targetItem = stock->getItem(name);
 
         if (!targetItem)
         {

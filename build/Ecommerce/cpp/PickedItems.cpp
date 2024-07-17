@@ -18,13 +18,15 @@ PickedItems &PickedItems::operator=(const PickedItems &src)
     if (this != &src)
     {
         delete next;
+        delete stockItem;
         next = nullptr;
+        stockItem = nullptr;
 
-        stockItem = src.stockItem;
         itemName = src.itemName;
         quantity = src.quantity;
         totalPrice = src.totalPrice;
-
+        
+        stockItem = (src.stockItem) ? new Items(*src.stockItem) : nullptr;
         next = (src.next) ? new PickedItems(*src.next) : nullptr;
     }
 

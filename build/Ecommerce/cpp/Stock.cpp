@@ -19,7 +19,12 @@ void Stock::addItemToStock(const std::string &name_, int quantity_, double price
 
 Stock::Stock(const Stock &cpy) : head(nullptr), tail(nullptr), size(0)
 {
-    *this = cpy;
+    Items *srcItem = cpy.head;
+    while (srcItem)
+    {
+        addItemToStock(srcItem->name, srcItem->quantity, srcItem->price);
+        srcItem = srcItem->next;
+    }
 }
 
 Items *Stock::getItem(std::string target)
