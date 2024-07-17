@@ -2,6 +2,7 @@ services:
   app:
     build:
       dockerfile: Dockerfile
+    container_name: app
     image: app
     stdin_open: true
     tty: true
@@ -10,7 +11,82 @@ services:
         source: .
         target: /app
     ports:
-      - "3000:3000"
+      - "8000:8000"
       - "5173:5173"
     environment:
       - HOST=0.0.0.0
+
+  backend:
+    build: ./filesystem/backend
+    container_name: backend
+    ports:
+      - "80:80"
+    env_file:
+      - ./filesystem/backend/.env
+    depends_on:
+      - mongo
+      - psql
+    volumes:
+      - ./filesystem/backend:/backend
+    command: npm run start:dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: db_mongo
+    logging:
+      driver: "none"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  psql:
+    container_name: db_psql
+    image: postgres:13
+    restart: always
+    env_file:
+      - ./filesystem/backend/.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  mongosh:
+    image: mongo:latest
+    container_name: mongo_shell
+    command: ["sleep", "infinity"]
+    networks:
+      - app-network
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./filesystem/frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./filesystem/frontend/.env
+    volumes:
+      - ./filesystem/frontend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+volumes:
+  mongo_data: {}
+  psql_data: {}
+
+networks:
+  app-network:

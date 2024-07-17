@@ -16,6 +16,10 @@ export function toggleMenu(app) {
     password: "",
   };
 
+  const handleToggle = () => {
+    navLink.classList.toggle("active");
+  };
+
   const handleBtn = (email, pass) => !(email.length > 0 && pass.length > 0);
 
   const handleInput = (e) => {
@@ -28,10 +32,6 @@ export function toggleMenu(app) {
 
     button.disabled = handleBtn(user.email, user.password);
   };
-
-  menuBar.addEventListener("click", () => {
-    navLink.classList.toggle("active");
-  });
 
   const updateError = (errors, name, msg) => {
     if (!errors[name].includes(msg)) {
@@ -83,49 +83,50 @@ export function toggleMenu(app) {
       else if (specialSet.includes(char)) hasSpecial = true;
     }
 
-    if (!hasAlpha) {
+    if (!hasAlpha)
       errors = updateError(errors, name, "Password should include alphabets");
-    }
-    if (!hasNum) {
+
+    if (!hasNum)
       errors = updateError(errors, name, "Password should include numerics");
-    }
-    if (!hasSpecial) {
+
+    if (!hasSpecial)
       errors = updateError(errors, name, "Password should include special");
-    }
 
-    if (value.length < 3 && !errors.password.includes("Too short")) {
+    if (value.length < 3 && !errors.password.includes("Too short"))
       errors = updateError(errors, name, "Too short");
-    }
 
-    if (errors[name].length > 0) {
+    if (errors[name].length > 0)
       renderError(errors[name], ".passwordErrorContainer");
-    }
   };
 
-  emailInput.addEventListener("input", handleInput);
-  passInput.addEventListener("input", handleInput);
-
-  form.addEventListener("submit", (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     handleEmailValidation(user.email, "email");
     handlePasswordValidation(user.password, "password");
     if (errors.email.length > 0 || errors.password.length > 0) {
-        if (errors.email.length > 0) {
-          emailInput.value = "";
-        }
-        if (errors.password.length > 0) {
-          passInput.value = "";
-        }
+      if (errors.email.length > 0) {
+        emailInput.value = "";
+      }
+      if (errors.password.length > 0) {
+        passInput.value = "";
+      }
     } else {
       collection.push(user);
-      console.log("Form Submitted Successfully!!!")
+      console.log("Form Submitted Successfully!!!");
       renderError(errors["email"], ".passwordErrorContainer");
       renderError(errors["password"], ".passwordErrorContainer");
+      emailInput.value = "";
+      passInput.value = "";
     }
     errors = {
       email: [],
       password: [],
     };
-  });
+  };
+
+  menuBar.addEventListener("click", handleToggle);
+  emailInput.addEventListener("input", handleInput);
+  passInput.addEventListener("input", handleInput);
+  form.addEventListener("submit", handleSubmit);
 }

@@ -1,4 +1,7 @@
+# articles
+
 In this article, Im going to cover a robust backend development use some best practices. The topics we are gonna cover will include
+
 - [ ] Folder structuring
 - [ ] Set up server
 - [ ] CRUD and HTTP protocol
@@ -22,33 +25,12 @@ In this article, Im going to cover a robust backend development use some best pr
 - [ ] SSL
 - [ ] Deployment
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 - [ ] Promises
 - [ ] Async...await callbacks
 - [ ] classes and OOP
 
+## REACT
 
-
-# REACT
 - [ ] JSX (JavaScript XML):
 - [ ] Components
     - [ ] functional

@@ -1,0 +1,94 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 .5rem;
+    position: relative;
+    background-color: #333;
+}
+
+.navbar-brand a {
+    text-decoration: none;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.navbar-toggle .bar {
+    height: 2px;
+    width: 28px;
+    margin: 3px 0;
+    background-color: #fff;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+}
+
+.navbar-menu .navbar-item {
+    padding: 0 1rem;
+    text-decoration: none;
+    color: #fff;
+}
+
+.navbar-menu a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+}
+
+form {
+    margin-top: 10px;
+}
+
+input {
+    display: block;
+    margin: 10px;
+    padding: 4px;
+}
+
+.error {
+    color: rgb(228, 23, 23);
+    font-size: 12px;
+    display: block;
+    margin: 0 10px;
+}
+
+@media (max-width: 458px) {
+    .navbar-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin:  -1px 0px;
+        background-color: #333;
+        
+    }
+    
+    .navbar-menu.active {
+        display: flex;
+        width: 100%;
+        padding: 10px 0px;
+    }
+
+    .navbar-toggle {
+        display: flex;
+    }
+}
