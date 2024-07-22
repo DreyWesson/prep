@@ -1,8 +1,5 @@
 import { toggleMenu } from "./form";
 import "./style.css";
-// import javascriptLogo from "./javascript.svg";
-// import viteLogo from "/vite.svg";
-// import { setupCounter } from "./counter.js";
 
 const app = document.querySelector("#app");
 document.addEventListener("DOMContentLoaded", () => {
