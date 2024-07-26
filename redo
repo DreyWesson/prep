@@ -1,0 +1,19 @@
+struct for clients
+struct for server details
+linkedlist crud
+fatal error  and ft_free
+notification
+init server
+create socket
+configure server address
+bind and listen on ip:port
+handle connection
+    * handle file desciptors: check FD_ISSET, check if is new fd or not
+        if (fd == sockfd)
+            accept new registration, add client to list and notify others
+        else
+            process message. let recv receive the msg. if it receives nothing or an error occurs then deregister the client else send the new msg
+            in any case notify others 
+        
+
+

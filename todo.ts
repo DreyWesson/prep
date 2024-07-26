@@ -1,4 +1,4 @@
-import { ITodo, IElement, IRender } from "./testground/todo/src/interfaces";
+import { ITodo, IElement, IRender } from "./testground/todo_ts/src/interfaces";
 
 // Get all required elements from the DOM
 const getAllElements = (app: HTMLElement): IElement => {
