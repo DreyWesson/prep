@@ -1,0 +1,184 @@
+<!-- TDD -->
+Incrementally testing your implementation is a sound strategy to ensure that each component works correctly before moving on to the next. Here’s a step-by-step approach to incrementally test your server implementation:
+
+Step-by-Step Incremental Testing
+Step 1: Basic Socket Setup and Binding
+Test Socket Creation:
+Verify that your socket is created correctly without errors.
+Write a minimal program that creates a socket, binds it to an address, and closes it.
+c
+Copy code
+int main() {
+    int sockfd = create_socket();
+    if (sockfd >= 0) {
+        printf("Socket created successfully\n");
+        close(sockfd);
+    }
+    return 0;
+}
+Test Binding and Listening:
+Extend the program to bind the socket and listen for incoming connections.
+c
+Copy code
+int main(int ac, char **av) {
+    if (ac != 2) {
+        write(2, "Wrong number of arguments\n", 26);
+        exit(1);
+    }
+
+    FD_ZERO(&activefds);
+    int sockfd = create_socket();
+
+    struct sockaddr_in servaddr;
+    setup_server_address(&servaddr, atoi(av[1]));
+
+    bind_and_listen(sockfd, &servaddr);
+    printf("Server listening on port %s\n", av[1]);
+
+    close(sockfd);
+    return 0;
+}
+Step 2: Accepting Client Connections
+Handle New Client Connections:
+Modify the main loop to accept new clients and print a message indicating a new connection.
+c
+Copy code
+void handle_new_client(int sockfd, struct sockaddr_in *servaddr) {
+    socklen_t addr_len = sizeof(*servaddr);
+    int client_fd = accept(sockfd, (struct sockaddr *)servaddr, &addr_len);
+    if (client_fd >= 0) {
+        printf("New client connected: %d\n", client_fd);
+        close(client_fd); // For now, immediately close the connection
+    }
+}
+
+int main(int ac, char **av) {
+    if (ac != 2) {
+        write(2, "Wrong number of arguments\n", 26);
+        exit(1);
+    }
+
+    FD_ZERO(&activefds);
+    int sockfd = create_socket();
+
+    struct sockaddr_in servaddr;
+    setup_server_address(&servaddr, atoi(av[1]));
+
+    bind_and_listen(sockfd, &servaddr);
+
+    while (1) {
+        readfds = activefds;
+        writefds = activefds;
+        if (select(max_fd + 1, &readfds, &writefds, NULL, NULL) < 0) fatal_error();
+
+        handle_fds(sockfd, &servaddr);
+    }
+    return 0;
+}
+Step 3: Register Clients and Manage Client List
+Register and Notify Clients:
+Implement client registration and notification.
+Print messages when clients connect or disconnect.
+c
+Copy code
+void register_client(int fd) {
+    t_client *new_client = malloc(sizeof(t_client));
+    if (!new_client) fatal_error();
+
+    new_client->id = client_no++;
+    new_client->fd = fd;
+    new_client->msg = NULL;
+    new_client->next = clients;
+    clients = new_client;
+
+    max_fd = fd > max_fd ? fd : max_fd;
+    FD_SET(fd, &activefds);
+
+    printf("server: client %d just arrived\n", new_client->id);
+    notify_other(fd, buf_write);
+}
+
+void remove_client(int fd) {
+    t_client **cur = &clients;
+    while (*cur && (*cur)->fd != fd) {
+        cur = &(*cur)->next;
+    }
+    if (*cur) {
+        t_client *to_remove = *cur;
+        printf("server: client %d just left\n", to_remove->id);
+        notify_other(fd, buf_write);
+        FD_CLR(fd, &activefds);
+        close(fd);
+        *cur = to_remove->next;
+        free(to_remove->msg);
+        free(to_remove);
+    }
+}
+
+void handle_new_client(int sockfd, struct sockaddr_in *servaddr) {
+    socklen_t addr_len = sizeof(*servaddr);
+    int client_fd = accept(sockfd, (struct sockaddr *)servaddr, &addr_len);
+    if (client_fd >= 0) {
+        register_client(client_fd);
+    }
+}
+Step 4: Handling Client Messages
+Receive and Print Messages:
+Modify handle_client_message to receive messages from clients and print them.
+c
+Copy code
+void handle_client_message(int fd) {
+    int read_bytes = recv(fd, buf_read, 1000, 0);
+    if (read_bytes <= 0) {
+        remove_client(fd);
+    } else {
+        buf_read[read_bytes] = '\0';
+        printf("Received from client %d: %s\n", fd, buf_read);
+        t_client *client = clients;
+        while (client && client->fd != fd) {
+            client = client->next;
+        }
+        if (client) {
+            char *new_msg = str_join(client->msg, buf_read);
+            free(client->msg);  // Free old message buffer
+            client->msg = new_msg;  // Assign new concatenated buffer
+            send_msg(fd);
+        }
+    }
+}
+Extract and Notify Messages:
+Implement message extraction and notify other clients.
+c
+Copy code
+void send_msg(int fd) {
+    t_client *client = clients;
+    while (client && client->fd != fd) {
+        client = client->next;
+    }
+    if (client) {
+        char *msg;
+        while (extract_message(&(client->msg), &msg)) {
+            sprintf(buf_write, "client %d: ", client->id);
+            notify_other(fd, buf_write);
+            notify_other(fd, msg);
+            free(msg);
+        }
+    }
+}
+Step 5: Full Functionality Testing
+Run Server and Connect Clients:
+
+Run the server and connect multiple clients using tools like telnet or a simple client program.
+Ensure clients can send messages and receive messages from other clients.
+Test Edge Cases:
+
+Test with clients disconnecting abruptly.
+Test with large messages that span multiple recv calls.
+Ensure no memory leaks using tools like valgrind.
+bash
+Copy code
+valgrind --leak-check=full ./server 12345
+Final Testing
+Memory Leaks: Ensure there are no memory leaks by verifying that all allocated memory is freed correctly.
+Robustness: Test under various conditions to ensure robustness and stability.
+By following these steps, you can incrementally build and test your server implementation, ensuring correctness and stability at each stage.

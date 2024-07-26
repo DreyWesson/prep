@@ -20,4 +20,4 @@ export const ui = `
     <div class="">
       <ul class="todo-list" id="todo-list"></ul>
     </div>
-`
+`;

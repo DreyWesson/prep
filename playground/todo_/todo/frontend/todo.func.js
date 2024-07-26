@@ -62,6 +62,7 @@ export const todo = (app) => {
       }
       return todo;
     });
+    console.log(todoList)
     renderTodo(todoList);
   }
 

@@ -1,49 +1,8 @@
 import { screen, fireEvent, waitFor } from '@testing-library/dom';
 import '@testing-library/jest-dom';
+import { ui } from '../ui';
 import { todo } from '../todo.func';
 // import { Todo } from '../todo.class';
-
-import { ui } from '../ui';
-
-// describe('Todo App', () => {
-//   beforeEach(() => {
-//     document.body.innerHTML = `<div id="app">${ui}</div>`;
-
-//     const app = document.querySelector('#app');
-//     new Todo(app);
-//     // todo(app);
-//   });
-
-//   it('renders the todo input and button', () => {
-//     const input = screen.getByPlaceholderText('Enter todo');
-//     const addButton = screen.getByTestId("add-todo-btn");
-//     const searchButton = screen.getByTestId("search-todo-btn");
-
-//     expect(input).toBeInTheDocument();
-//     expect(addButton).toBeInTheDocument();
-//     expect(searchButton).toBeInTheDocument();
-//   });
-
-//   it('adds a new todo', () => {
-//     const inputElement = screen.getByPlaceholderText(/Enter todo/i);
-//     const addButton = screen.getByTestId("add-todo-btn");
-
-//     fireEvent.change(inputElement, { target: { value: 'New Todo' } });
-//     fireEvent.click(addButton);
-
-//     const todoItem = screen.getByText(/New Todo/i);
-//     expect(todoItem).toBeInTheDocument();
-//   });
-
-//   it('does not add empty todos', () => {
-//     const addButton = screen.getByTestId("add-todo-btn");
-
-//     fireEvent.click(addButton);
-
-//     const todoItems = screen.queryAllByRole('listitem');
-//     expect(todoItems).toHaveLength(0);
-//   });
-// });
 
 describe('Todo App', () => {
   beforeEach(() => {
@@ -52,7 +11,7 @@ describe('Todo App', () => {
     todo(app);
   });
 
-  it('renders the todo input and button', () => {
+  it('renders the todo input and buttons', () => {
     const input = screen.getByPlaceholderText('Enter todo');
     const addButton = screen.getByTestId("add-todo-btn");
     const searchButton = screen.getByTestId("search-todo-btn");
@@ -71,6 +30,8 @@ describe('Todo App', () => {
 
     const todoItem = screen.getByText(/New Todo/i);
     expect(todoItem).toBeInTheDocument();
+    const todoItems = screen.queryAllByRole('listitem');
+    expect(todoItems).toHaveLength(1);
   });
 
   it('does not add empty todos', () => {
@@ -93,41 +54,27 @@ describe('Todo App', () => {
 
     const editButton = screen.getByText(/Edit/i);
     fireEvent.click(editButton);
-    
+
     const updatedTodoItem = screen.getByText(/Updated Todo/i);
     expect(updatedTodoItem).toBeInTheDocument();
 
     global.prompt.mockRestore();
   });
 
-    it('deletes a todo', async () => {
-    const inputElement = screen.getByPlaceholderText(/Enter todo/i);
-    const addButton = screen.getByTestId("add-todo-btn");
-
-    fireEvent.change(inputElement, { target: { value: 'Todo to delete' } });
-    fireEvent.click(addButton);
-
-    const addedTodoItem = screen.getByText(/Todo to delete/i);
-    expect(addedTodoItem).toBeInTheDocument();
-
-    const deleteButtons = screen.getAllByText(/Delete/i);
-    expect(deleteButtons.length).toBeGreaterThan(0); // Ensure there's at least one delete button
-
-    fireEvent.click(deleteButtons[0]);
-
-    console.log('Before waitFor:', screen.getAllByText(/Todo to delete/i));
-
-    // Wait for the todo item to be removed
+  it('deletes a todo', async () => {
+    const todoInput = screen.getByPlaceholderText("Enter todo");
+    const addBtn = screen.getByTestId("add-todo-btn");
+    fireEvent.change(todoInput, { target: { value: "Todo to delete" } });
+    fireEvent.click(addBtn);
+    expect(screen.getByText("Todo to delete")).toBeInTheDocument();
+    const deleteBtn = screen.getByText("Delete");
+    fireEvent.click(deleteBtn);
     await waitFor(() => {
-      const deletedTodoItem = screen.queryByText(/Todo to delete/i);
-      console.log('After waitFor:', deletedTodoItem);
-      expect(deletedTodoItem).not.toBeInTheDocument();
+      expect(screen.queryByText("Todo to delete")).not.toBeInTheDocument();
     });
   });
 
-
   it('filters todos by completed status', () => {
-    // Add some todos
     const inputElement = screen.getByPlaceholderText(/Enter todo/i);
     const addButton = screen.getByTestId("add-todo-btn");
 
@@ -136,11 +83,9 @@ describe('Todo App', () => {
     fireEvent.change(inputElement, { target: { value: 'Todo 2' } });
     fireEvent.click(addButton);
 
-    // Mark one todo as completed
     const checkbox = screen.getAllByRole('checkbox')[0];
     fireEvent.click(checkbox);
 
-    // Filter completed todos
     const filterSelect = screen.getByRole('combobox');
     fireEvent.change(filterSelect, { target: { value: 'completed' } });
 
@@ -152,7 +97,6 @@ describe('Todo App', () => {
   });
 
   it('searches todos by text', () => {
-    // Add some todos
     const inputElement = screen.getByPlaceholderText(/Enter todo/i);
     const addButton = screen.getByTestId("add-todo-btn");
 
@@ -161,7 +105,6 @@ describe('Todo App', () => {
     fireEvent.change(inputElement, { target: { value: 'Walk the dog' } });
     fireEvent.click(addButton);
 
-    // Search for 'groceries'
     const searchInput = screen.getByPlaceholderText(/Enter todo/i);
     fireEvent.change(searchInput, { target: { value: 'groceries' } });
     const searchButton = screen.getByTestId("search-todo-btn");

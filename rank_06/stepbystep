@@ -1,0 +1,165 @@
+<!-- Initial Setup -->
+create client structure
+create global variables to handle fd -
+    * fd_set: data structure to monitor multiple file descriptors for I/O operations
+        * readfd: A set of file descriptors to be monitored for read events
+        * writefd: A set of file descriptors to be monitored for read events
+        * activefd: contains all listening sockets and connected clients
+create buffer_read, buffer_write variables and the ones to monitor client_no and current_max_fd
+
+<!-- Input Validation -->
+Next validate input
+
+<!-- TCP Socket Creation -->
+create socket: Here we setup network socket. It sets up the socket for TCP communication and prepares it to be monitored for incoming data. the socket func is called with "Address Family - Internet" - AF_INET and Socket Type (SOCK_STREAM - which indicates tcp). and the 0(indicates tcp).
+    * check socket connection failure
+    * if socket connection is successful add the socket fd to the active fd in the fdset(a data structure used by Select)
+    * then assign the val of socket connection id to max_fd
+
+        int create_socket() {
+            int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (sockfd < 0) fatal_error();
+            FD_SET(sockfd, &activefds);
+            max_fd = sockfd; // Ensure max_fd is set to the socket file descriptor
+            return sockfd;
+        }
+
+<!-- Setup server address - specifying Endpoints -->
+struct sockaddr_in servaddr: Is used to set up the network address and port that server-client will use to communicate. Here we will set socket address where we will bind a socket to an IP address and port.
+    NB: You wont be creating this socketaddr struct youre just using it to understand the values you are setting
+    struct sockaddr_in {
+        short            sin_family;  // Address family, typically AF_INET
+        unsigned short   sin_port;    // Port number
+        struct in_addr   sin_addr;    // Internet address
+        unsigned char    sin_zero[8]; // Padding to make the structure the same size as `struct sockaddr`
+    };
+
+    * initialize the address to zero using bzero or memset;
+  
+    void setup_server_address(struct sockaddr_in *servaddr, int port) {
+        bzero(servaddr, sizeof(*servaddr));
+        memset(servaddr, 0, sizeof(*servaddr));
+        servaddr->sin_family = AF_INET;
+        servaddr->sin_addr.s_addr = htonl(2130706433); // 127.0.0.1
+        servaddr->sin_port = htons(port);
+    }
+
+
+<!-- Bind and start listening -->
+* call the bind function passing the socket fd, socket addr and addr size. If it fails return fatal error
+* the listen function takes the socket fd and the max backlog (SOMAXCONN - maximum number of connections that the kernel should queue for a listening socket). if it fails return fatal error
+    void bind_and_listen(int sockfd, struct sockaddr_in *servaddr) {
+        if (bind(sockfd, (const struct sockaddr *)servaddr, sizeof(*servaddr))) fatal_error();
+        if (listen(sockfd, SOMAXCONN)) fatal_error();
+    }
+
+<!-- Monitor and handle socket events -->
+Now we need to create and infinite loop that monitors and handle socket events.
+    * save active fd for read and write events (remember the acti)
+    * call select to monitor the file descriptor. it taked the maxfd + 1, address of readfd, addr of write and null for the exeptionfd and null for timeout.
+Then, create a function to handle fd ready for I/O ops. The function handles new connections and incoming messages. it also check if they are read or write.
+    while (1) {
+        readfds = activefds;
+        writefds = activefds;
+        if (select(max_fd + 1, &readfds, &writefds, NULL, NULL) < 0) fatal_error();
+
+        handle_fds(sockfd, &servaddr);
+    }
+
+<!-- Handle the fd(s) -->
+Handle the fd function is gonna run a loop from 0 to max_fd and checks if the fd is already set. if the fd is the socket fd it means a new client is trying to connect therefore creates a new client connection else handle existing client's messages
+void handle_fds(int sockfd, struct sockaddr_in *servaddr) {
+    for (int fd = 0; fd <= max_fd; fd++) {
+            if (FD_ISSET(fd, &readfds)) {
+                (fd == sockfd) ? handle_new_client(sockfd, servaddr) : handle_client_message(fd);
+            }
+        }
+    }
+
+<!-- Handle new clients -->
+accept the new connection from new clients
+register the client
+    void handle_new_client(int sockfd, struct sockaddr_in *servaddr) {
+        socklen_t addr_len = sizeof(*servaddr);
+        int client_fd = accept(sockfd, (struct sockaddr *)servaddr, &addr_len);
+        if (client_fd >= 0) {
+            register_client(client_fd);
+        }
+    }
+    void register_client(int fd) {
+        t_client *new_client = malloc(sizeof(t_client));
+        if (!new_client) fatal_error();
+
+        new_client->id = client_no++;
+        new_client->fd = fd;
+        new_client->msg = NULL;
+        new_client->next = clients;
+        clients = new_client;
+
+        max_fd = fd > max_fd ? fd : max_fd;
+        FD_SET(fd, &activefds);
+
+        sprintf(buf_write, "server: client %d just arrived\n", new_client->id);
+        notify_other(fd, buf_write);
+    }
+    *  set the client struct values
+    *  set new max_fd if the fd is greater than current max
+    *  add the fd to the activefds set
+    *  format the msg and save if in the buffer_ write
+    *  send the message in the buffer write - which broadcast arrival of the new connection
+    void notify_other(int author, char *str) {
+        t_client *client = clients;
+        while (client) {
+            if (FD_ISSET(client->fd, &writefds) && client->fd != author) {
+                if (send(client->fd, str, strlen(str), 0) < 0) {
+                    fatal_error();
+                }
+            }
+            client = client->next;
+        }
+    }
+
+<!-- Handle client message -->
+void handle_client_message(int fd) {
+    int read_bytes = recv(fd, buf_read, sizeof(buf_read) - 1, 0);
+    if (read_bytes <= 0) {
+        remove_client(fd);
+    } else {
+        buf_read[read_bytes] = '\0';
+        t_client *client = clients;
+        while (client && client->fd != fd) {
+            client = client->next;
+        }
+        if (client) {
+            char *new_msg = str_join(client->msg, buf_read);
+            if (new_msg == NULL) fatal_error();
+            free(client->msg);  // Free old message buffer
+            client->msg = new_msg;  // Assign new concatenated buffer
+            send_msg(fd);
+        }
+    }
+}
+first we need to receive the data using recv. recv will take the fd of data src,  pointer to where the received data will be stored, specify the max number of bytes expected. recv returns (num > 0 ) if it successfully reads something, num == 0 if the connection as been closed by peer and num < 0 if an error occurred
+    if (n <= 0) we need to remove the client. we loop through our list to find the client, when we do format msg and notify other clients of the client leaving. Then, clear the fd from the active fds, close the fd. delete the client from the list and free the client struct
+        void remove_client(int fd) {
+            t_client *cur = clients;
+            t_client *prev = NULL;
+            while (cur && cur->fd != fd) {
+                prev = cur;
+                cur = cur->next;
+            }
+            if (cur) {
+                sprintf(buf_write, "server: client %d just left\n", cur->id);
+                notify_other(fd, buf_write);
+                FD_CLR(fd, &activefds);
+                close(fd);
+                if (prev) 
+                    prev->next = cur->next;
+                else
+                    clients = cur->next;
+                free(cur->msg);
+                free(cur);
+            }
+        }
+    if (n > 0) find the client
+
