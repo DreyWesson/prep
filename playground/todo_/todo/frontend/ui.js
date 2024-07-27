@@ -4,11 +4,11 @@ export const ui = `
         <label for="input">
           <input type="text" id="todo-input" class="todo-input" name="todo" placeholder="Enter todo" />
         </label>
-        <button type="button" name="search" id="search-todo" data-testid="search-todo-btn">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
         <button name="add" type="button" id="add-todo" data-testid="add-todo-btn">
           <i class="fa-solid fa-plus"></i>
+        </button>
+        <button type="button" name="search" id="search-todo" data-testid="search-todo-btn">
+          <i class="fa-solid fa-magnifying-glass"></i>
         </button>
         <select name="filter" id="filter-input">
           <option value="all">All</option>

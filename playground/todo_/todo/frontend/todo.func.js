@@ -62,7 +62,6 @@ export const todo = (app) => {
       }
       return todo;
     });
-    console.log(todoList)
     renderTodo(todoList);
   }
 
@@ -80,33 +79,48 @@ export const todo = (app) => {
     }
   }
 
+  function createCheckbox(className, completed, cb, id) {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add(className);
+    checkbox.checked = completed;
+    checkbox.addEventListener("change", () => cb(id));
+    return checkbox
+  }
+  const createSpan = (className, text) => {
+    const span = document.createElement("span");
+    span.classList.add(className);
+    span.textContent = text;
+    return span;
+  }
+
+  const createBtn = (text, className, cb) => {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.classList.add(className);
+    btn.addEventListener("click", cb);
+    return btn;
+  }
+
   function renderTodo(todoArr) {
     listTodo.innerHTML = "";
     todoArr.forEach((todo) => {
       const li = document.createElement("li");
       li.classList.toggle("completed", todo.completed);
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.classList.add("checkbox");
-      checkbox.checked = todo.completed;
-      checkbox.addEventListener("change", () => toggleComplete(todo.id));
-      const text = document.createElement("span");
-      text.classList.add("todo-text");
-      text.textContent = todo.text;
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Edit";
-      editBtn.classList.add("edit-btn");
-      editBtn.addEventListener("click", (e) => {
+
+      const checkbox = createCheckbox("checkbox", todo.completed, toggleComplete, todo.id);
+      const text = createSpan("todo-text", todo.text);
+
+      const editBtn = createBtn("Edit", "edit-btn", (e) => {
         e.stopPropagation();
         updateTodo(todo.id);
-      });
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Delete";
-      deleteBtn.classList.add("delete-btn");
-      deleteBtn.addEventListener("click", (e) => {
+      })
+
+      const deleteBtn = createBtn("Delete", "delete-btn", (e) => {
         e.stopPropagation();
         deleteTodo(todo.id);
-      });
+      })
+
       li.appendChild(checkbox);
       li.appendChild(text);
       li.appendChild(editBtn);

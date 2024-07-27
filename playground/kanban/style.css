@@ -1,0 +1,97 @@
+/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#app {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+#add-task-form {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+#add-task-form input {
+  padding: 10px;
+  width: 60%;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#add-task-form button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #5c6bc0;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#kanban-board {
+  display: flex;
+  justify-content: space-between;
+}
+
+.column {
+  background: white;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 30%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 0 10px;
+}
+
+.column h2 {
+  text-align: center;
+  color: #5c6bc0;
+}
+
+.task-list {
+  min-height: 200px;
+}
+
+.task {
+  background: #e7f3ff;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #a6c8ff;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task .move-btn, .task .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5c6bc0;
+  font-size: 16px;
+}
+
+.task .delete-btn {
+  color: #f44336;
+}
+
+.task.completed {
+  background: #dcedc8;
+  border-color: #8bc34a;
+}

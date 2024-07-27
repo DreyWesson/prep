@@ -1,0 +1,11 @@
+# for typescript
+1. npm install --save-dev vitest jest jsdom @testing-library/jest-dom @testing-library/dom @types/testing-library__jest-dom ts-jest @types/jest
+2. add `"test": "vitest"` to package.json script
+3. create vitest.setup.ts file and import jest-dom into it (import "@testing-library/jest-dom")
+4. add the test config into the vite.config.ts file
+    test: {
+        globals: true,
+        environment: "jsdom",
+        setupFiles: ["./vitest.setup.ts"]
+    }
+5. add `"types": ["vitest/globals", "node"]` and "include": ["src","**/*.test.ts"] in the tsconfig.json file
