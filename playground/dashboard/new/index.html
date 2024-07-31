@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Inventory</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <header>
+            <button class="toggle-btn" id="toggle-btn">☰</button>
+            <h1>Dashboard</h1>
+            <div class="user-info">
+                <p>Welcome, Admin</p>
+            </div>
+        </header>
+        <section class="dashboard-stats">
+            <div class="stat">
+                <h3>Users</h3>
+                <p>1500</p>
+            </div>
+            <div class="stat">
+                <h3>Sales</h3>
+                <p>$45,000</p>
+            </div>
+        </section>
+        <section class="inventory">
+            <h2>Inventory Management</h2>
+            <button class="add-item">Add Item</button>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Sample Product</td>
+                        <td>Electronics</td>
+                        <td>100</td>
+                        <td>$99.99</td>
+                        <td>
+                            <button class="edit">Edit</button>
+                            <button class="delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
+

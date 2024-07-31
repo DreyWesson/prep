@@ -1,34 +1,30 @@
 Preparing for full stack interviews by building projects is a great way to demonstrate your skills and understanding of both frontend and backend technologies. Here is a list of projects categorized by frontend, backend, and full stack, along with a brief description of what each project should entail.
 
-Frontend Projects
+Frontend Projects:
 Portfolio Website
-
 Description: Create a personal portfolio website to showcase your projects and skills.
 Tech Stack: HTML, CSS, JavaScript, React
 Features: Responsive design, interactive UI, contact form.
-Weather App
 
-Description: Build a weather application that fetches weather data from an API.
-Tech Stack: HTML, CSS, JavaScript, React or Vue
-Features: Search for weather by city, display current weather and forecast, use of API (e.g., OpenWeatherMap).
-E-commerce Product Page
-
-Description: Design a product page for an e-commerce site.
-Tech Stack: HTML, CSS, JavaScript, React
-Features: Product listing, product details, image gallery, responsive design.
 To-Do List
-
 Description: Develop a to-do list application.
 Tech Stack: HTML, CSS, JavaScript, React or Vue
 Features: Add, delete, edit, mark as completed, filter tasks.
-Movie Search App
 
-Description: Create an application to search for movies using an API.
+Weather App / Movie Search App
+Description: Build a weather application that fetches weather data from an API.
 Tech Stack: HTML, CSS, JavaScript, React or Vue
-Features: Search by movie title, display movie details, pagination.
-Backend Projects
-RESTful API for a Blog
+Features: Search for weather by city, display current weather and forecast, use of API (e.g., OpenWeatherMap).
 
+E-commerce Product Page
+Description: Design a product page for an e-commerce site.
+Tech Stack: HTML, CSS, JavaScript, React
+Features: Product listing, product details, image gallery, responsive design.
+
+Responsive Admin Dashboard
+
+Backend Projects:
+RESTful API for a Blog
 Description: Build a RESTful API to manage blog posts and comments.
 Tech Stack: Node.js, Express, MongoDB
 Features: CRUD operations for posts and comments, user authentication.

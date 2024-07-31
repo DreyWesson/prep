@@ -180,7 +180,6 @@ void    processMessage(t_server *server, int fd) {
     char        buf_read[4096];
     int         read_bytes;
     t_client    *client;
-    char        *new_msg;
 
     read_bytes = recv(fd, buf_read, sizeof(buf_read) - 1, 0);
     if (read_bytes <= 0)
@@ -189,8 +188,7 @@ void    processMessage(t_server *server, int fd) {
         buf_read[read_bytes] = '\0';
         client = findClient(server, fd);
         if (client) {
-            new_msg = str_join(client->msg, buf_read);
-            client->msg = new_msg;
+            client->msg = str_join(client->msg, buf_read);
             sendMessage(server, fd, client);
         }
     }

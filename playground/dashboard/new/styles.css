@@ -1,0 +1,198 @@
+/* styles.css */
+
+body {
+    display: flex;
+    justify-content: space-between;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    width: 250px;
+    background: #333;
+    color: #fff;
+    padding: 15px;
+    position: fixed;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 15px 50px;
+    flex: 1;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.dashboard-stats {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stat {
+    background: #f4f4f4;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .dashboard-stats .stat {
+        flex: 1 1 100%;
+    }
+}
+
+
+.inventory {
+    margin-top: 20px;
+}
+
+.inventory h2 {
+    margin-bottom: 10px;
+}
+
+.add-item {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.inventory-table th,
+.inventory-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.inventory-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.inventory-table td {
+    text-align: center;
+}
+
+.inventory-table .edit,
+.inventory-table .delete {
+    padding: 5px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.inventory-table .edit {
+    background-color: #2196F3;
+    color: white;
+}
+
+.inventory-table .delete {
+    background-color: #f44336;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .inventory-table {
+        font-size: 14px;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+        padding: 6px;
+    }
+
+    .add-item {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+}
+
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed ul li a {
+    font-size: 0;
+}
+
+.main-content.collapsed {
+    margin-left: 60px;
+}
+
+
+@media (max-width: 768px) {
+    .toggle-btn {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar.collapsed {
+        width: 0;
+        overflow: hidden;
+    }
+
+    .main-content.collapsed {
+        margin-left: 0;
+    }
+}
