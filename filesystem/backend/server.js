@@ -7,6 +7,7 @@ import { selectDB } from "./config/index.config.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 80;
+const HOST = '0.0.0.0';
 const db_type = "fs";
 
 if (db_type === "nosql") {
@@ -16,7 +17,7 @@ if (db_type === "nosql") {
 
 const database = selectDB(db_type);
 
-createServer(database).listen(PORT, () =>
+createServer(database).listen(PORT,  () =>
   console.log(`Server is running on port ${PORT}`)
 );
 

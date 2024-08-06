@@ -27,12 +27,16 @@ body {
 }
 
 .sidebar ul li {
-    margin: 15px 0;
+    padding: 20px 0px;
 }
 
 .sidebar ul li a {
     color: #fff;
     text-decoration: none;
+}
+
+.sidebar ul li a span {
+    margin-left: 13px;
 }
 
 .main-content {
@@ -158,8 +162,15 @@ header h1 {
     }
 }
 
-
+.nav-list.collapsed {
+    display: none;
+}
 .sidebar.collapsed {
+    width: 60px;
+}
+
+
+/* .sidebar.collapsed {
     width: 60px;
 }
 
@@ -169,7 +180,7 @@ header h1 {
 
 .main-content.collapsed {
     margin-left: 60px;
-}
+} */
 
 
 @media (max-width: 768px) {
