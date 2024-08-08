@@ -3,41 +3,133 @@ import { App } from ".";
 class MyReact {
   constructor() {
     this.state = [];
-    this.setters = [];
     this.stateIdx = 0;
     this.isRendering = false;
+    this.oldVirtualDOM = null;
+    this.container = null;
+    this.updateQueue = [];
+    this.isUpdateScheduled = false;
   }
 
-  createElement = (type, props = {}, ...children) => {
-    return { type, props: { ...props, children } };
+  // Batching mechanism: Queue updates and process them in a single render cycle
+  scheduleUpdate = () => {
+    if (!this.isUpdateScheduled) {
+      this.isUpdateScheduled = true;
+      requestAnimationFrame(() => {
+        this.renderApp();
+        this.isUpdateScheduled = false;
+      });
+    }
   };
 
-  render = (element, container) => {
-    if (typeof element === "string" || typeof element === "number") {
-      container.appendChild(document.createTextNode(String(element)));
+  createElement = (type, props = {}, ...children) => {
+    return { type, props: { ...props, children: children.flat() }, key: props.key || null };
+  };
+
+  diff = (parent, oldNode, newNode, index = 0) => {
+    const existingNode = parent.childNodes[index];
+
+    // Case 1: New node is null - remove the old node
+    if (!newNode) {
+      if (existingNode) parent.removeChild(existingNode);
       return;
     }
 
+    // Case 2: Old node is null - append the new node
+    if (!oldNode) {
+      parent.appendChild(this.createRealDOM(newNode));
+      return;
+    }
+
+    // Case 3: Nodes are different - replace the old node with the new node
+    if (this.hasNodeChanged(oldNode, newNode)) {
+      parent.replaceChild(this.createRealDOM(newNode), existingNode);
+      return;
+    }
+
+    // Case 4: Nodes are the same - update props and diff children
+    if (newNode.type) {
+      this.updateProps(existingNode, oldNode.props, newNode.props);
+
+      const oldChildren = oldNode.props.children || [];
+      const newChildren = newNode.props.children || [];
+      const oldChildrenKeyed = this.createKeyedMap(oldChildren);
+      const newChildrenKeyed = this.createKeyedMap(newChildren);
+
+      const maxLength = Math.max(oldChildren.length, newChildren.length);
+      for (let i = 0; i < maxLength; i++) {
+        const oldChild = oldChildrenKeyed[newChildren[i]?.key] || oldChildren[i];
+        this.diff(existingNode, oldChild, newChildren[i], i);
+      }
+    }
+  };
+
+  createKeyedMap = (children) => {
+    return children.reduce((acc, child) => {
+      acc[child?.key || child] = child;
+      return acc;
+    }, {});
+  };
+
+  createRealDOM = (element) => {
+    if (typeof element === "string" || typeof element === "number") {
+      return document.createTextNode(String(element));
+    }
+
     const domElement = document.createElement(element.type);
+    this.updateProps(domElement, {}, element.props);
 
-    if (element.props) {
-      Object.keys(element.props)
-        .filter((key) => key !== "children")
-        .forEach((key) => {
-          if (key.startsWith("on")) {
-            const eventType = key.toLowerCase().substring(2);
-            domElement.addEventListener(eventType, element.props[key]);
+    element.props.children
+      .map(this.createRealDOM)
+      .forEach((child) => domElement.appendChild(child));
+
+    return domElement;
+  };
+
+  updateProps = (domElement, oldProps, newProps) => {
+    for (let name in { ...oldProps, ...newProps }) {
+      if (name === "children") continue;
+
+      if (oldProps[name] !== newProps[name]) {
+        if (name.startsWith("on")) {
+          const eventType = name.toLowerCase().substring(2);
+          if (oldProps[name]) domElement.removeEventListener(eventType, oldProps[name]);
+          if (newProps[name]) domElement.addEventListener(eventType, newProps[name]);
+        } else if (name === "style") {
+          Object.assign(domElement.style, newProps[name] || {});
+        } else if (name in domElement) {
+          domElement[name] = newProps[name] || "";
+        } else {
+          if (newProps[name]) {
+            domElement.setAttribute(name, newProps[name]);
           } else {
-            domElement[key] = element.props[key];
+            domElement.removeAttribute(name);
           }
-        });
+        }
+      }
+    }
+  };
+
+  hasNodeChanged = (node1, node2) => {
+    return (
+      typeof node1 !== typeof node2 ||
+      ((typeof node1 === "string" || typeof node1 === "number") && node1 !== node2) ||
+      node1.type !== node2.type ||
+      node1.key !== node2.key
+    );
+  };
+
+  render = (element, container) => {
+    this.container = container;
+    const newVirtualDOM = element;
+
+    if (this.oldVirtualDOM) {
+      this.diff(container, this.oldVirtualDOM, newVirtualDOM);
+    } else {
+      container.appendChild(this.createRealDOM(newVirtualDOM));
     }
 
-    if (element.props.children) {
-      element.props.children.forEach((child) => this.render(child, domElement));
-    }
-
-    container.appendChild(domElement);
+    this.oldVirtualDOM = newVirtualDOM;
   };
 
   useState = (initVal) => {
@@ -53,7 +145,7 @@ class MyReact {
 
     const setState = (newVal) => {
       this.state[idx] = newVal;
-      this.renderApp();
+      this.scheduleUpdate();
     };
 
     this.stateIdx++;
@@ -63,10 +155,11 @@ class MyReact {
   renderApp = () => {
     this.isRendering = true;
     this.stateIdx = 0;
-    const root = document.getElementById("root");
-    root.innerHTML = "";
+
+    const root = this.container || document.getElementById("root");
 
     this.render(App(), root);
+
     this.isRendering = false;
     this.stateIdx = 0;
   };
@@ -78,3 +171,5 @@ export const createElement = myReactInstance.createElement;
 export const render = myReactInstance.render;
 export const useState = myReactInstance.useState;
 export const renderApp = myReactInstance.renderApp;
+
+
