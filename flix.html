@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dropdown Menu Example</title>
+  </head>
+  <body>
+    <div id="main">
+      <div class="munich marienplatz">Munich</div>
+      <div class="berlin wall">
+        Berlin
+        <div class="munich ostbahnhof">is</div>
+        <div class="dallas">Dallas</div>
+      </div>
+      <div class="munich nymphenburg">
+        the
+        <div class="milan">
+          Milan
+          <div class="munich isar">best</div>
+          <div class="berlin brandenburg">is</div>
+        </div>
+      </div>
+      <div class="munich english-garden">city</div>
+      <div class="dallas">is</div>
+      <div class="milan">
+        is
+        <div class="milan">an</div>
+      </div>
+      <div class="munich marienplatz ostbahnhof">in</div>
+      <div class="berlin">
+        nice
+        <div class="munich nymphenburg">Germany</div>
+        <div class="dallas">
+          the
+          <div class="berlin wall">but</div>
+          <div class="munich isar'-and"></div>
+        </div>
+      </div>
+      <div class="munich english-garden">you</div>
+      <div class="berlin checkpoint-charlie">not</div>
+      <div class="munich isar">
+        cannot
+        <div class="dallas">operations</div>
+      </div>
+      <div class="dallas">hub</div>
+      <div class="munich ostbahnhof nymphenburg">
+        change
+        <div class="milan">Italian</div>
+
+        <div class="munich marienplatz">my</div>
+        <div class="berlin brandenburg">as</div>
+        <div class="munich english-garden">mind</div>
+        <div class="dallas">
+          for
+          <div class="munich isar">
+            about
+            <div class="milan">city</div>
+            <div class="berlin wall">
+              nice
+              <div class="berlin checkpointcharlie">as</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="munich ostbahnhof">it</div>
+        <div class="berlin wall">Munich</div>
+        <div class="dallas">Greyhound</div>
+    </div>
+    <script>
+      const elements = Array.from(document.querySelectorAll("[class]"));
+      const classes = elements.reduce((obj, el) => {
+        el.classList.forEach((val, i) => {
+          obj[val] = (obj[val] || 0) + 1;
+        });
+        return obj;
+      }, {})
+
+
+      const mostFrequentClassName = (obj) => {
+        let most = {className: "", count: 0};
+        Object.entries(obj).forEach(([className, count],val) => {
+          if (most.count < count)
+            most = {className, count};
+        })
+        return most;
+      }
+
+      const most = mostFrequentClassName(classes)
+      function getDirectTextContent(element) {
+          const val = Array.from(element.childNodes)
+              .filter(node => node.nodeType === Node.TEXT_NODE)
+              .map(node => node.textContent.trim());
+            return (val.length > 0) && val.join(' ').trim();
+      }
+
+      const constructSentence = (elements, mosFrequentClassName) => {
+         return elements
+          .filter(element => element.classList.contains(mosFrequentClassName.className))
+          .map(getDirectTextContent)
+          // .map(element => element.textContent.trim())
+          .join(' ')
+          .trim();
+      }
+      const res = constructSentence(elements, most);
+      console.log(res);
+    </script>
+  </body>
+</html>
